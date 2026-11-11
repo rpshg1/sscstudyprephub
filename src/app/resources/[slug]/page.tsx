@@ -66,7 +66,7 @@ export async function generateMetadata({
     ? resource.coverImageUrl.startsWith("http")
       ? resource.coverImageUrl
       : `${baseUrl}${resource.coverImageUrl}`
-    : undefined;
+    : `${baseUrl}/og-image.png`;
 
   return {
     title: `${resource.title} — ${formatExamLabel(resource.examCategory)} PDF`,
@@ -78,15 +78,20 @@ export async function generateMetadata({
       description: metaDesc,
       url: `${baseUrl}/resources/${resource.slug}`,
       type: "article",
-      images: coverUrl
-        ? [{ url: coverUrl, width: 360, height: 500, alt: resource.title }]
-        : undefined,
+      images: [
+        {
+          url: coverUrl,
+          width: resource.coverImageUrl ? 360 : 1200,
+          height: resource.coverImageUrl ? 500 : 630,
+          alt: resource.title,
+        },
+      ],
     },
     twitter: {
-      card: coverUrl ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: `${resource.title} | ${BRAND.shortName}`,
       description: metaDesc,
-      images: coverUrl ? [coverUrl] : undefined,
+      images: [coverUrl],
     },
   };
 }
@@ -160,6 +165,12 @@ export default async function ResourceDetailPage({
       "@type": "Organization",
       name: BRAND.name,
       url: baseUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: `${baseUrl}/logo.png`,
+        width: 512,
+        height: 512,
+      },
     },
   };
 

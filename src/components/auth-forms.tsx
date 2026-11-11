@@ -46,10 +46,22 @@ export function LoginForm({ nextUrl = "/dashboard" }: { nextUrl?: string }) {
 
   return (
     <Card className="mx-auto w-full max-w-md p-6 sm:p-8">
-      <h1 className="text-2xl font-extrabold text-[#101B33]">Welcome Back</h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Sign in to access your SSPH study dashboard, saved PDFs, and credits.
-      </p>
+      <div className="flex items-center gap-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.png"
+          alt="SSCSTUDYPREPHUB logo"
+          width={44}
+          height={44}
+          className="h-11 w-11 shrink-0 rounded-full shadow-xs ring-1 ring-amber-400/50"
+        />
+        <div>
+          <h1 className="text-2xl font-extrabold text-[#101B33]">Welcome Back</h1>
+          <p className="mt-0.5 text-sm text-slate-600">
+            Sign in to access your SSPH study dashboard, saved PDFs, and credits.
+          </p>
+        </div>
+      </div>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <div>
@@ -162,10 +174,22 @@ export function SignupForm() {
 
   return (
     <Card className="mx-auto w-full max-w-md p-6 sm:p-8">
-      <h1 className="text-2xl font-extrabold text-[#101B33]">Create Free Account</h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Join SSCSTUDYPREPHUB to bookmark resources, track downloads, and manage passes.
-      </p>
+      <div className="flex items-center gap-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.png"
+          alt="SSCSTUDYPREPHUB logo"
+          width={44}
+          height={44}
+          className="h-11 w-11 shrink-0 rounded-full shadow-xs ring-1 ring-amber-400/50"
+        />
+        <div>
+          <h1 className="text-2xl font-extrabold text-[#101B33]">Create Free Account</h1>
+          <p className="mt-0.5 text-sm text-slate-600">
+            Join SSCSTUDYPREPHUB to bookmark resources, track downloads, and manage passes.
+          </p>
+        </div>
+      </div>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <div>

@@ -77,12 +77,31 @@ export default async function HomePage() {
       description: BRAND.heroSubtitle,
       url: baseUrl,
       email: BRAND.supportEmail,
+      logo: {
+        "@type": "ImageObject",
+        url: `${baseUrl}/logo.png`,
+        width: 512,
+        height: 512,
+      },
+      image: `${baseUrl}/og-image.png`,
     },
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: BRAND.name,
+      alternateName: BRAND.shortName,
       url: baseUrl,
+      publisher: {
+        "@type": "Organization",
+        name: BRAND.name,
+        url: baseUrl,
+        logo: {
+          "@type": "ImageObject",
+          url: `${baseUrl}/logo.png`,
+          width: 512,
+          height: 512,
+        },
+      },
       potentialAction: {
         "@type": "SearchAction",
         target: {

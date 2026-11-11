@@ -14,28 +14,15 @@ export function BrandLogo({
       className="inline-flex items-center gap-2.5 group focus-visible:outline-none"
       aria-label={`${BRAND.name} (${BRAND.shortName}) Home`}
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#101B33] text-white shadow-xs ring-1 ring-white/10 group-hover:bg-[#2563EB] transition-colors">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M4 5.5C4 4.67157 4.67157 4 5.5 4H11C11.5523 4 12 4.44772 12 5V19.5C12 19.5 9.8 18.2 5.5 18.2C4.67157 18.2 4 17.5284 4 16.7V5.5Z"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M20 5.5C20 4.67157 19.3284 4 18.5 4H13C12.4477 4 12 4.44772 12 5V19.5C12 19.5 14.2 18.2 18.5 18.2C19.3284 18.2 20 17.5284 20 16.7V5.5Z"
-            stroke="#93C5FD"
-            strokeWidth="1.8"
-            strokeLinejoin="round"
-          />
-        </svg>
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full shadow-xs ring-1 ring-amber-400/50 group-hover:ring-[#2563EB] transition-all overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.png"
+          alt={`${BRAND.name} (${BRAND.shortName}) logo`}
+          width={40}
+          height={40}
+          className="h-full w-full object-cover"
+        />
       </span>
       <div className="flex flex-col leading-none">
         <span

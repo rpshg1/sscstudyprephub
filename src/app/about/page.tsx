@@ -13,12 +13,22 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 space-y-6">
-      <div>
-        <Badge tone="blue">About Us</Badge>
-        <h1 className="mt-2 text-3xl font-extrabold text-[#101B33]">
-          About {BRAND.name} ({BRAND.shortName})
-        </h1>
-        <p className="mt-2 text-base text-slate-600">{BRAND.tagline}</p>
+      <div className="flex items-start gap-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.png"
+          alt={`${BRAND.name} (${BRAND.shortName}) logo`}
+          width={56}
+          height={56}
+          className="h-14 w-14 shrink-0 rounded-full shadow-xs ring-1 ring-amber-400/50"
+        />
+        <div>
+          <Badge tone="blue">About Us</Badge>
+          <h1 className="mt-2 text-3xl font-extrabold text-[#101B33]">
+            About {BRAND.name} ({BRAND.shortName})
+          </h1>
+          <p className="mt-2 text-base text-slate-600">{BRAND.tagline}</p>
+        </div>
       </div>
 
       <Card className="p-6 sm:p-8 space-y-4 text-sm leading-relaxed text-slate-700">
