@@ -5,8 +5,8 @@ export const BRAND = {
   heroHeading: "Prepare Smarter. Score Higher.",
   heroSubtitle:
     "Discover structured study notes, previous year question papers (PYQs), preparation roadmaps, current affairs PDFs, and exam-focused books for SSC CGL, CHSL, MTS, CPO, and GD aspirants.",
-  supportEmail: "support@sscstudyprephub.example",
-  copyrightEmail: "legal@sscstudyprephub.example",
+  supportEmail: "sscstudyprephub@gmail.com",
+  copyrightEmail: "sscstudyprephub@gmail.com",
   disclaimerShort:
     "SSPH is an independent educational platform and is not affiliated with the Staff Selection Commission (SSC) or the Government of India.",
 } as const;

@@ -35,13 +35,33 @@ export default async function ContactPage({
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Card className="p-5 text-sm">
-          <p className="font-bold text-[#101B33]">Student Support</p>
-          <p className="mt-1 text-slate-600">{BRAND.supportEmail}</p>
+        <Card className="p-5 text-sm space-y-1.5">
+          <p className="font-bold text-[#101B33]">
+            Student Support &amp; General Inquiries
+          </p>
+          <p className="text-xs text-slate-600">
+            Account help, download issues, payment support, or feedback:
+          </p>
+          <a
+            href={`mailto:${BRAND.supportEmail}?subject=${encodeURIComponent("SSPH Support Request")}`}
+            className="inline-block font-semibold text-[#2563EB] hover:underline"
+          >
+            {BRAND.supportEmail}
+          </a>
         </Card>
-        <Card className="p-5 text-sm">
-          <p className="font-bold text-[#101B33]">Copyright &amp; Legal</p>
-          <p className="mt-1 text-slate-600">{BRAND.copyrightEmail}</p>
+        <Card className="p-5 text-sm space-y-1.5 border-amber-200 bg-amber-50/40">
+          <p className="font-bold text-[#101B33]">
+            Book Removal &amp; Copyright Takedown
+          </p>
+          <p className="text-xs text-slate-600">
+            Authors or publishers requesting removal of any listed book/PDF:
+          </p>
+          <a
+            href={`mailto:${BRAND.copyrightEmail}?subject=${encodeURIComponent("Request for Book Removal - SSPH")}`}
+            className="inline-block font-semibold text-[#2563EB] hover:underline"
+          >
+            {BRAND.copyrightEmail}
+          </a>
         </Card>
       </div>
 

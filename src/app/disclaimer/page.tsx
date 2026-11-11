@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { BRAND } from "@/lib/constants";
 import { Badge, Card } from "@/components/ui/primitives";
 
@@ -36,6 +37,30 @@ export default function DisclaimerPage() {
           illustrative study outlines created for demonstration and educational practice.
           SSPH does not guarantee examination selection or specific scores.
         </p>
+        <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 space-y-1.5">
+          <h2 className="text-sm font-bold text-[#101B33]">
+            Support &amp; Book Removal Requests
+          </h2>
+          <p className="text-xs text-slate-600">
+            SSPH respects intellectual property rights and does not claim ownership of
+            third-party works. If you are a copyright owner or authorized representative
+            and want a listed book or PDF removed, or need general support, email{" "}
+            <a
+              href={`mailto:${BRAND.copyrightEmail}?subject=${encodeURIComponent("Book Removal Request - SSPH")}`}
+              className="font-semibold text-[#2563EB] hover:underline"
+            >
+              {BRAND.copyrightEmail}
+            </a>{" "}
+            or submit a request via{" "}
+            <Link
+              href="/contact?type=COPYRIGHT_DMCA"
+              className="font-semibold text-[#2563EB] hover:underline"
+            >
+              Contact / Copyright Takedown
+            </Link>
+            .
+          </p>
+        </div>
       </Card>
     </div>
   );

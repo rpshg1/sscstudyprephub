@@ -388,14 +388,27 @@ export default async function ResourceDetailPage({
                 />
               </div>
 
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-t border-[#E2E8F0] pt-4 text-xs text-slate-500">
-                <span>Downloads recorded: {resource.downloadCount.toLocaleString()}</span>
-                <Link
-                  href={`/contact?type=COPYRIGHT_DMCA&slug=${encodeURIComponent(resource.slug)}`}
-                  className="hover:text-[#2563EB] hover:underline"
-                >
-                  Report issue or copyright concern
-                </Link>
+              <div className="mt-6 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 text-xs text-slate-600 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span>Downloads recorded: {resource.downloadCount.toLocaleString()}</span>
+                  <Link
+                    href={`/contact?type=COPYRIGHT_DMCA&slug=${encodeURIComponent(resource.slug)}`}
+                    className="font-semibold text-[#2563EB] hover:underline"
+                  >
+                    Request removal / report copyright concern
+                  </Link>
+                </div>
+                <p className="border-t border-[#E2E8F0] pt-2 leading-relaxed">
+                  <strong>Support &amp; Book Removal:</strong> For help or if you are an
+                  author/publisher requesting removal of this resource, email{" "}
+                  <a
+                    href={`mailto:${BRAND.copyrightEmail}?subject=${encodeURIComponent(`Book Removal Request: ${resource.title}`)}`}
+                    className="font-semibold text-[#2563EB] hover:underline"
+                  >
+                    {BRAND.copyrightEmail}
+                  </a>
+                  .
+                </p>
               </div>
             </div>
           </div>

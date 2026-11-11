@@ -16,6 +16,15 @@ export function Footer() {
             <p className="text-xs leading-relaxed text-slate-400">
               {BRAND.disclaimerShort}
             </p>
+            <p className="text-xs text-slate-300">
+              Support &amp; Book Removal:{" "}
+              <a
+                href={`mailto:${BRAND.supportEmail}`}
+                className="font-semibold text-blue-300 hover:text-white underline"
+              >
+                {BRAND.supportEmail}
+              </a>
+            </p>
           </div>
 
           <div>

@@ -38,18 +38,30 @@ export default function CopyrightDmcaPage() {
             by the copyright owner, its agent, or the law.
           </li>
         </ul>
-        <p>
-          You can email {BRAND.copyrightEmail} or file an immediate takedown ticket via
-          our{" "}
-          <Link
-            href="/contact?type=COPYRIGHT_DMCA"
-            className="font-semibold text-[#2563EB] hover:underline"
-          >
-            Copyright Takedown Form
-          </Link>
-          . Verified takedown requests result in immediate unpublishing of the linked
-          resource.
-        </p>
+        <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-4 space-y-2">
+          <h3 className="text-sm font-bold text-[#101B33]">
+            Direct Email for Book Removal, Copyright &amp; Support
+          </h3>
+          <p className="text-xs leading-relaxed text-slate-700">
+            Authors, publishers, copyright owners, or students can send book removal
+            requests, content corrections, or support inquiries directly to{" "}
+            <a
+              href={`mailto:${BRAND.copyrightEmail}?subject=${encodeURIComponent("Book Removal / Copyright Request - SSPH")}`}
+              className="font-bold text-[#2563EB] hover:underline"
+            >
+              {BRAND.copyrightEmail}
+            </a>{" "}
+            or submit an immediate ticket using our{" "}
+            <Link
+              href="/contact?type=COPYRIGHT_DMCA"
+              className="font-semibold text-[#2563EB] hover:underline"
+            >
+              Book Removal &amp; Copyright Takedown Form
+            </Link>
+            . Verified removal requests result in prompt unpublishing and deletion from
+            public listings.
+          </p>
+        </div>
       </Card>
     </div>
   );
