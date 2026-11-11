@@ -35,13 +35,16 @@ export function DownloadFlow({
   resourceId,
   resourceTitle,
   accessType,
-  accessSummary,
+  accessSummary: initialAccessSummary,
   initialSaved,
-  isLoggedIn,
-  bookCredits,
+  isLoggedIn: initialIsLoggedIn,
+  bookCredits: initialBookCredits,
   adProvider,
 }: DownloadFlowProps) {
   const router = useRouter();
+  const [accessSummary, setAccessSummary] = useState(initialAccessSummary);
+  const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
+  const [bookCredits, setBookCredits] = useState(initialBookCredits);
   const [saved, setSaved] = useState(initialSaved);
   const [savingBookmark, setSavingBookmark] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(false);
@@ -56,6 +59,48 @@ export function DownloadFlow({
   const [adStatusInfo, setAdStatusInfo] = useState<AdProviderStatus>(adProvider);
   const [adLoading, setAdLoading] = useState(false);
   const [pollingServerCallback, setPollingServerCallback] = useState(false);
+
+  // Defer view count tracking and personalized unlock state off SSR so detail pages stay cacheable
+  useEffect(() => {
+    let cancelled = false;
+
+    void fetch(`/api/resources/${resourceId}/status`, { method: "POST" }).catch(() => {});
+
+    if (
+      !initialIsLoggedIn &&
+      typeof document !== "undefined" &&
+      document.cookie.includes("ssph_logged_in=1")
+    ) {
+      fetch(`/api/resources/${resourceId}/status`, { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then(
+          (
+            data: {
+              isLoggedIn?: boolean;
+              bookCredits?: number;
+              initialSaved?: boolean;
+              accessSummary?: ResourceAccessSummary;
+              adProvider?: AdProviderStatus;
+            } | null
+          ) => {
+            if (cancelled || !data) return;
+            if (typeof data.isLoggedIn === "boolean") setIsLoggedIn(data.isLoggedIn);
+            if (typeof data.bookCredits === "number") setBookCredits(data.bookCredits);
+            if (typeof data.initialSaved === "boolean") setSaved(data.initialSaved);
+            if (data.accessSummary) setAccessSummary(data.accessSummary);
+            if (data.adProvider) {
+              setAdStatusInfo(data.adProvider);
+              setAdConfigured(data.adProvider.isConfigured);
+            }
+          }
+        )
+        .catch(() => {});
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [resourceId, initialIsLoggedIn]);
 
   // Poll ONLY when waiting on a real server-side callback provider
   useEffect(() => {

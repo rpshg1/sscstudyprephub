@@ -61,6 +61,13 @@ export async function createUserSession(
     path: "/",
     expires: expiresAt,
   });
+  cookieStore.set("ssph_logged_in", "1", {
+    httpOnly: false,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    expires: expiresAt,
+  });
 
   return rawToken;
 }
@@ -121,4 +128,5 @@ export async function destroyCurrentSession(): Promise<void> {
     await prisma.session.deleteMany({ where: { tokenHash } }).catch(() => {});
   }
   cookieStore.delete(SESSION_COOKIE_NAME);
+  cookieStore.delete("ssph_logged_in");
 }

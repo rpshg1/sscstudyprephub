@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ShieldCheck, Info } from "lucide-react";
-import { getCurrentUser } from "@/lib/auth";
 import { getRazorpayConfigStatus } from "@/lib/razorpay";
 import { Badge, Card } from "@/components/ui/primitives";
 import { PricingCards } from "@/components/pricing-cards";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Membership & Pricing — Free ₹0, 10 Books ₹59, Lifetime ₹300",
@@ -16,7 +15,6 @@ export const metadata: Metadata = {
 };
 
 export default async function PricingPage() {
-  const user = await getCurrentUser();
   const razorpay = getRazorpayConfigStatus();
 
   return (
@@ -34,8 +32,7 @@ export default async function PricingPage() {
 
       <div className="mt-10">
         <PricingCards
-          isLoggedIn={Boolean(user)}
-          currentTier={user?.membershipTier}
+          isLoggedIn={false}
           razorpayConfigured={razorpay.configured}
           interactive
         />

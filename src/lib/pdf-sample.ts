@@ -16,6 +16,24 @@ export interface PdfInspectionResult {
   extractedTextSnippet: string;
 }
 
+async function encodePngToWebp(
+  imageBuffer: Buffer,
+  targetWidth = 360,
+  quality = 82
+): Promise<Buffer> {
+  const { createCanvas, loadImage } = await import("@napi-rs/canvas");
+  const img = await loadImage(imageBuffer);
+  const width = Math.min(targetWidth, img.width || targetWidth);
+  const height = Math.max(
+    1,
+    Math.round(((img.height || width) * width) / (img.width || width))
+  );
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(img, 0, 0, width, height);
+  return Buffer.from(await canvas.encode("webp", quality));
+}
+
 export async function renderFirstPageThumbnail(
   pdfBytes: Buffer | Uint8Array,
   slug: string
@@ -26,12 +44,26 @@ export async function renderFirstPageThumbnail(
       slug.replace(/[^a-z0-9-]/gi, "-").toLowerCase().slice(0, 80) || "thumb";
     const imgArr = await renderPageAsImage(new Uint8Array(pdfBytes), 1, {
       canvasImport: () => import("@napi-rs/canvas"),
-      width: 540,
+      width: 400,
     });
     const pngBuffer = Buffer.from(imgArr);
     if (pngBuffer.byteLength === 0) return null;
 
-    const fileName = `${safeSlug}.png`;
+    let thumbBuffer: Buffer = pngBuffer;
+    let fileName = `${safeSlug}.png`;
+    let contentType: "image/webp" | "image/png" = "image/png";
+
+    try {
+      const webpBuffer = await encodePngToWebp(pngBuffer, 360, 82);
+      if (webpBuffer.byteLength > 0) {
+        thumbBuffer = webpBuffer;
+        fileName = `${safeSlug}.webp`;
+        contentType = "image/webp";
+      }
+    } catch {
+      // Keep PNG buffer if WebP conversion is unavailable
+    }
+
     const supabase = getSupabaseAdminClient();
     const bucket = process.env.SUPABASE_STORAGE_BUCKET?.trim() || "ssph-resources";
 
@@ -40,7 +72,7 @@ export async function renderFirstPageThumbnail(
       const relativePath = `thumbnails/${fileName}`;
       const fullPath = resolveSafeStoragePath(relativePath);
       await fs.mkdir(path.dirname(fullPath), { recursive: true });
-      await fs.writeFile(fullPath, pngBuffer);
+      await fs.writeFile(fullPath, thumbBuffer);
     } catch {
       // Read-only serverless filesystem fallback handled by Supabase upload below
     }
@@ -48,8 +80,8 @@ export async function renderFirstPageThumbnail(
     if (supabase) {
       await supabase.storage
         .from(bucket)
-        .upload(`thumbnails/${fileName}`, pngBuffer, {
-          contentType: "image/png",
+        .upload(`thumbnails/${fileName}`, thumbBuffer, {
+          contentType,
           upsert: true,
         });
     }
@@ -63,28 +95,68 @@ export async function renderFirstPageThumbnail(
 
 export async function readThumbnailPayload(
   slug: string
-): Promise<{ kind: "buffer"; buffer: Buffer } | { kind: "signed_url"; url: string } | null> {
+): Promise<
+  | { kind: "buffer"; buffer: Buffer; contentType: "image/webp" | "image/png" }
+  | { kind: "signed_url"; url: string }
+  | null
+> {
   const safeSlug = slug.replace(/[^a-z0-9-]/gi, "-").toLowerCase().slice(0, 80);
   if (!safeSlug) return null;
 
-  const relativePath = `thumbnails/${safeSlug}.png`;
+  const webpPath = `thumbnails/${safeSlug}.webp`;
+  const pngPath = `thumbnails/${safeSlug}.png`;
+
   try {
-    const localFull = resolveSafeStoragePath(relativePath);
-    const buf = await fs.readFile(localFull);
-    return { kind: "buffer", buffer: buf };
+    const buf = await fs.readFile(resolveSafeStoragePath(webpPath));
+    return { kind: "buffer", buffer: buf, contentType: "image/webp" };
   } catch {
-    const supabase = getSupabaseAdminClient();
-    if (supabase) {
-      const bucket = process.env.SUPABASE_STORAGE_BUCKET?.trim() || "ssph-resources";
-      const { data, error } = await supabase.storage
-        .from(bucket)
-        .createSignedUrl(relativePath, 3600);
-      if (!error && data?.signedUrl) {
-        return { kind: "signed_url", url: data.signedUrl };
-      }
-    }
-    return null;
+    // Try legacy local PNG
   }
+
+  try {
+    const pngBuf = await fs.readFile(resolveSafeStoragePath(pngPath));
+    try {
+      const webpBuf = await encodePngToWebp(pngBuf, 360, 82);
+      return { kind: "buffer", buffer: webpBuf, contentType: "image/webp" };
+    } catch {
+      return { kind: "buffer", buffer: pngBuf, contentType: "image/png" };
+    }
+  } catch {
+    // Fall back to Supabase Storage
+  }
+
+  const supabase = getSupabaseAdminClient();
+  if (!supabase) return null;
+
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET?.trim() || "ssph-resources";
+
+  const { data: webpData, error: webpErr } = await supabase.storage
+    .from(bucket)
+    .download(webpPath);
+  if (!webpErr && webpData) {
+    const buf = Buffer.from(await webpData.arrayBuffer());
+    return { kind: "buffer", buffer: buf, contentType: "image/webp" };
+  }
+
+  const { data: pngData, error: pngErr } = await supabase.storage
+    .from(bucket)
+    .download(pngPath);
+  if (!pngErr && pngData) {
+    const pngBuf = Buffer.from(await pngData.arrayBuffer());
+    try {
+      const webpBuf = await encodePngToWebp(pngBuf, 360, 82);
+      // Warm Supabase with the compact WebP asset asynchronously for future origin fetches
+      void supabase.storage.from(bucket).upload(webpPath, webpBuf, {
+        contentType: "image/webp",
+        upsert: true,
+      });
+      return { kind: "buffer", buffer: webpBuf, contentType: "image/webp" };
+    } catch {
+      return { kind: "buffer", buffer: pngBuf, contentType: "image/png" };
+    }
+  }
+
+  return null;
 }
 
 function getSupabaseAdminClient() {

@@ -20,9 +20,12 @@ export async function GET(
     return new NextResponse(new Uint8Array(payload.buffer), {
       status: 200,
       headers: {
-        "Content-Type": "image/png",
+        "Content-Type": payload.contentType,
         "Content-Length": String(payload.buffer.byteLength),
-        "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+        "Cache-Control":
+          "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000",
+        "CDN-Cache-Control":
+          "public, max-age=604800, stale-while-revalidate=2592000",
         "X-Content-Type-Options": "nosniff",
       },
     });

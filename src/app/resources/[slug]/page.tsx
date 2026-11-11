@@ -5,15 +5,13 @@ import {
   ArrowLeft,
   BookOpen,
   CheckCircle2,
+  ChevronRight,
   FileText,
   Layers,
   ShieldCheck,
   UserCheck,
 } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { evaluateResourceAccess } from "@/lib/access";
-import { getAdProviderStatus } from "@/lib/ads/adapter";
 import {
   BRAND,
   formatAccessTypeLabel,
@@ -27,7 +25,12 @@ import { DownloadFlow } from "@/components/download-flow";
 import { ResourceCard } from "@/components/resource-card";
 import { SamplePreviewViewer } from "@/components/sample-preview-viewer";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
+export const dynamicParams = true;
+
+export function generateStaticParams() {
+  return [];
+}
 
 function parseJsonStringArray(raw: string | null | undefined): string[] {
   if (!raw) return [];
@@ -37,6 +40,13 @@ function parseJsonStringArray(raw: string | null | undefined): string[] {
   } catch {
     return [];
   }
+}
+
+function getSiteBaseUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ||
+    "https://sscstudyprephub-rpqv.vercel.app"
+  );
 }
 
 export async function generateMetadata({
@@ -49,18 +59,34 @@ export async function generateMetadata({
   if (!resource) {
     return { title: "Resource Not Found" };
   }
+  const baseUrl = getSiteBaseUrl();
   const metaDesc = (resource.shortDescription || resource.description).slice(0, 155);
   const tags = parseJsonStringArray(resource.tagsJson);
+  const coverUrl = resource.coverImageUrl
+    ? resource.coverImageUrl.startsWith("http")
+      ? resource.coverImageUrl
+      : `${baseUrl}${resource.coverImageUrl}`
+    : undefined;
 
   return {
-    title: resource.title,
+    title: `${resource.title} — ${formatExamLabel(resource.examCategory)} PDF`,
     description: metaDesc,
-    keywords: tags.length > 0 ? tags : undefined,
+    keywords: tags.length > 0 ? tags : [resource.subject, formatExamLabel(resource.examCategory), "SSC PDF"],
     alternates: { canonical: `/resources/${resource.slug}` },
     openGraph: {
       title: `${resource.title} | ${BRAND.shortName}`,
       description: metaDesc,
+      url: `${baseUrl}/resources/${resource.slug}`,
       type: "article",
+      images: coverUrl
+        ? [{ url: coverUrl, width: 360, height: 500, alt: resource.title }]
+        : undefined,
+    },
+    twitter: {
+      card: coverUrl ? "summary_large_image" : "summary",
+      title: `${resource.title} | ${BRAND.shortName}`,
+      description: metaDesc,
+      images: coverUrl ? [coverUrl] : undefined,
     },
   };
 }
@@ -76,47 +102,12 @@ export default async function ResourceDetailPage({
     notFound();
   }
 
-  // Retrieve adShortlinkUrl internally ONLY for server-side ad adapter status evaluation
-  const internalMeta = await prisma.resource.findUnique({
-    where: { id: resource.id },
-    select: { adShortlinkUrl: true },
-  });
-
-  // Increment view counter quietly
-  await prisma.resource
-    .update({
-      where: { id: resource.id },
-      data: { viewCount: { increment: 1 } },
-    })
-    .catch(() => {});
-
-  const user = await getCurrentUser();
-
-  let alreadyUnlocked = false;
-  let initialSaved = false;
-
-  if (user) {
-    const [unlockRow, savedRow] = await Promise.all([
-      prisma.resourceUnlock.findUnique({
-        where: { userId_resourceId: { userId: user.id, resourceId: resource.id } },
-        select: { id: true },
-      }),
-      prisma.savedResource.findUnique({
-        where: { userId_resourceId: { userId: user.id, resourceId: resource.id } },
-        select: { id: true },
-      }),
-    ]);
-    alreadyUnlocked = Boolean(unlockRow);
-    initialSaved = Boolean(savedRow);
-  }
-
+  const baseUrl = getSiteBaseUrl();
   const accessSummary = evaluateResourceAccess({
     accessType: resource.accessType,
-    user,
-    alreadyUnlocked,
+    user: null,
+    alreadyUnlocked: false,
   });
-
-  const adProvider = getAdProviderStatus(internalMeta?.adShortlinkUrl);
 
   const related = (
     await listPublicResources({ category: resource.category.slug, take: 5 })
@@ -131,38 +122,121 @@ export default async function ResourceDetailPage({
         ? "blue"
         : "navy";
 
-  const structuredData = {
+  const tags = parseJsonStringArray(resource.tagsJson);
+  const coverAbsoluteUrl = resource.coverImageUrl
+    ? resource.coverImageUrl.startsWith("http")
+      ? resource.coverImageUrl
+      : `${baseUrl}${resource.coverImageUrl}`
+    : undefined;
+
+  const resourceJsonLd = {
     "@context": "https://schema.org",
-    "@type": "LearningResource",
+    "@type":
+      resource.resourceType === "BOOK"
+        ? ["Book", "LearningResource"]
+        : "LearningResource",
     name: resource.title,
-    description: resource.description,
+    description: resource.shortDescription || resource.description,
+    url: `${baseUrl}/resources/${resource.slug}`,
+    image: coverAbsoluteUrl,
+    inLanguage: resource.language || "English",
+    bookEdition: resource.edition || undefined,
+    isbn: resource.isbn || undefined,
+    numberOfPages: resource.pageCount || undefined,
+    datePublished: resource.yearPublished ? String(resource.yearPublished) : undefined,
+    keywords: tags.length > 0 ? tags.join(", ") : undefined,
     educationalLevel: formatExamLabel(resource.examCategory),
     learningResourceType: formatResourceTypeLabel(resource.resourceType),
+    isAccessibleForFree: resource.accessType !== "PREMIUM",
     author: {
       "@type": "Organization",
-      name: resource.authorSource,
+      name: resource.author || resource.authorSource,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: resource.publisher || resource.authorSource,
     },
     provider: {
       "@type": "Organization",
       name: BRAND.name,
+      url: baseUrl,
     },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: baseUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Resource Library",
+        item: `${baseUrl}/library`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: resource.category.name,
+        item: `${baseUrl}/library?category=${encodeURIComponent(resource.category.slug)}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        name: resource.title,
+        item: `${baseUrl}/resources/${resource.slug}`,
+      },
+    ],
   };
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([resourceJsonLd, breadcrumbJsonLd]),
+        }}
       />
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link
-          href="/library"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-[#2563EB]"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Resource Library
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500"
+          >
+            <Link href="/" className="hover:text-[#2563EB]">
+              Home
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+            <Link href="/library" className="hover:text-[#2563EB]">
+              Library
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+            <Link
+              href={`/library?category=${encodeURIComponent(resource.category.slug)}`}
+              className="hover:text-[#2563EB]"
+            >
+              {resource.category.name}
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+            <span className="font-semibold text-[#101B33] line-clamp-1 max-w-[220px] sm:max-w-sm">
+              {resource.title}
+            </span>
+          </nav>
+
+          <Link
+            href="/library"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#2563EB]"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Resource Library
+          </Link>
+        </div>
 
         <Card className="mt-5 p-5 sm:p-8">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
@@ -381,10 +455,10 @@ export default async function ResourceDetailPage({
                   resourceTitle={resource.title}
                   accessType={resource.accessType}
                   accessSummary={accessSummary}
-                  initialSaved={initialSaved}
-                  isLoggedIn={Boolean(user)}
-                  bookCredits={user?.bookCredits ?? 0}
-                  adProvider={adProvider}
+                  initialSaved={false}
+                  isLoggedIn={false}
+                  bookCredits={0}
+                  adProvider={resource.adProvider}
                 />
               </div>
 

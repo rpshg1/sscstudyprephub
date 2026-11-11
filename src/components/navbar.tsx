@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -18,11 +18,40 @@ import { Button } from "@/components/ui/primitives";
 import type { SafeUser } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
-export function Navbar({ user }: { user: SafeUser | null }) {
+export function Navbar({ user: initialUser = null }: { user?: SafeUser | null }) {
+  const [user, setUser] = useState<SafeUser | null>(initialUser);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const syncSession = async () => {
+      const hasHint = document.cookie.includes("ssph_logged_in=1");
+      if (!hasHint) {
+        await Promise.resolve();
+        if (!cancelled) setUser(null);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        const data = (res.ok ? await res.json() : { user: null }) as {
+          user?: SafeUser | null;
+        };
+        if (!cancelled) setUser(data.user ?? null);
+      } catch {
+        // Keep current session UI if network lookup fails transiently
+      }
+    };
+
+    void syncSession();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -36,6 +65,7 @@ export function Navbar({ user }: { user: SafeUser | null }) {
     setLoggingOut(true);
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+      setUser(null);
       setMobileOpen(false);
       router.push("/");
       router.refresh();

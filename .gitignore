@@ -40,6 +40,7 @@ yarn-error.log*
 /storage/pdfs/*.pdf
 /storage/samples/*.pdf
 /storage/thumbnails/*.png
+/storage/thumbnails/*.webp
 /storage/uploads/*
 
 # vercel

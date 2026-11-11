@@ -30,6 +30,9 @@ export function ResourceCover({
         <img
           src={coverImageUrl}
           alt={title}
+          loading={compact ? "lazy" : "eager"}
+          decoding="async"
+          fetchPriority={compact ? "auto" : "high"}
           className="h-full w-full rounded object-contain shadow-2xs"
         />
         {isDemo && (

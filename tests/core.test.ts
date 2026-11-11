@@ -204,7 +204,8 @@ test("10-15 page sample PDF slicer & filename/Drive folder parser", async () => 
   assert.equal(sliced.thumbnailUrl, "/api/thumbnails/unit-test-slice");
   const thumbPayload = await readThumbnailPayload("unit-test-slice");
   assert.ok(thumbPayload && thumbPayload.kind === "buffer");
-  assert.equal(thumbPayload.buffer.subarray(0, 4).toString("hex"), "89504e47");
+  assert.equal(thumbPayload.contentType, "image/webp");
+  assert.equal(thumbPayload.buffer.subarray(0, 4).toString("hex"), "52494646");
 });
 
 test("Access evaluation rules across FREE, AD_SUPPORTED, and PREMIUM", () => {

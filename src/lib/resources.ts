@@ -1,4 +1,7 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { getAdProviderStatus } from "@/lib/ads/adapter";
 import type { AccessType, ExamCategory, Prisma, ResourceType } from "@prisma/client";
 
 /**
@@ -105,15 +108,38 @@ export async function listPublicResources(filters: ResourceFilterInput = {}) {
       ? [{ downloadCount: "desc" }, { createdAt: "desc" }]
       : [{ createdAt: "desc" }];
 
-  return prisma.resource.findMany({
+  const items = await prisma.resource.findMany({
     where,
     select: PUBLIC_RESOURCE_SELECT,
     orderBy,
     take: filters.take ?? 60,
   });
+
+  return items.map((item) => {
+    const previewDesc =
+      item.shortDescription ||
+      (item.description.length > 220
+        ? `${item.description.slice(0, 217)}...`
+        : item.description);
+    return {
+      ...item,
+      description: previewDesc,
+    };
+  });
 }
 
-export async function getPublicResourceDetailBySlug(slug: string) {
+export const getCachedActiveCategories = unstable_cache(
+  async () =>
+    prisma.category.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: { id: true, name: true, slug: true },
+    }),
+  ["active-categories"],
+  { revalidate: 300 }
+);
+
+export const getPublicResourceDetailBySlug = cache(async (slug: string) => {
   const resource = await prisma.resource.findUnique({
     where: { slug },
     select: {
@@ -127,11 +153,12 @@ export async function getPublicResourceDetailBySlug(slug: string) {
     return null;
   }
 
-  // Return boolean flags without leaking internal storage origins or Drive file IDs
+  // Return boolean flags & sanitized ad status without leaking storage origins or Drive IDs
   const { adShortlinkUrl, sampleStoragePath, ...publicFields } = resource;
   return {
     ...publicFields,
     hasAdShortlink: Boolean(adShortlinkUrl),
     hasSamplePreview: Boolean(sampleStoragePath),
+    adProvider: getAdProviderStatus(adShortlinkUrl),
   };
-}
+});

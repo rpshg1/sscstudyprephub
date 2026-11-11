@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -37,8 +37,8 @@ function loadRazorpayScript(): Promise<boolean> {
 }
 
 export function PricingCards({
-  isLoggedIn,
-  currentTier,
+  isLoggedIn: initialIsLoggedIn,
+  currentTier: initialCurrentTier,
   razorpayConfigured,
   interactive = true,
 }: {
@@ -48,11 +48,41 @@ export function PricingCards({
   interactive?: boolean;
 }) {
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
+  const [currentTier, setCurrentTier] = useState<
+    "FREE" | "TEN_BOOKS" | "LIFETIME" | undefined
+  >(initialCurrentTier);
   const [loadingPlan, setLoadingPlan] = useState<"TEN_BOOKS" | "LIFETIME" | null>(null);
   const [notice, setNotice] = useState<{
     type: "error" | "info" | "success";
     message: string;
   } | null>(null);
+
+  useEffect(() => {
+    if (initialIsLoggedIn) return;
+    if (typeof document === "undefined" || !document.cookie.includes("ssph_logged_in=1")) {
+      return;
+    }
+    let cancelled = false;
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : { user: null }))
+      .then(
+        (data: {
+          user?: { membershipTier?: "FREE" | "TEN_BOOKS" | "LIFETIME" } | null;
+        }) => {
+          if (cancelled || !data.user) return;
+          setIsLoggedIn(true);
+          if (data.user.membershipTier) {
+            setCurrentTier(data.user.membershipTier);
+          }
+        }
+      )
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialIsLoggedIn]);
 
   async function handleCheckout(planType: "TEN_BOOKS" | "LIFETIME") {
     setNotice(null);

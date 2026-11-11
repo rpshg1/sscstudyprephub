@@ -1,21 +1,55 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, SearchX } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { listPublicResources } from "@/lib/resources";
+import { formatExamLabel, formatResourceTypeLabel } from "@/lib/constants";
+import { getCachedActiveCategories, listPublicResources } from "@/lib/resources";
 import { SearchBar } from "@/components/search-bar";
 import { LibraryFilters } from "@/components/library-filters";
 import { ResourceCard } from "@/components/resource-card";
 import { Badge } from "@/components/ui/primitives";
 
-export const dynamic = "force-dynamic";
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const q = typeof sp.q === "string" ? sp.q.trim() : "";
+  const exam = typeof sp.exam === "string" && sp.exam !== "ALL" ? sp.exam : "";
+  const type = typeof sp.type === "string" && sp.type !== "ALL" ? sp.type : "";
+  const category =
+    typeof sp.category === "string" && sp.category !== "ALL" ? sp.category : "";
 
-export const metadata: Metadata = {
-  title: "Resource Library — Books, Notes, PYQs & Roadmaps",
-  description:
-    "Browse 16 subject categories of SSC CGL, CHSL, MTS, CPO, and GD books, study notes, previous year questions, roadmaps, and current affairs PDFs.",
-  alternates: { canonical: "/library" },
-};
+  const parts: string[] = [];
+  if (exam) parts.push(formatExamLabel(exam));
+  if (type) parts.push(formatResourceTypeLabel(type));
+  if (category) parts.push(category.replace(/-/g, " "));
+  if (q) parts.push(`"${q}"`);
+
+  const title =
+    parts.length > 0
+      ? `${parts.join(" • ")} PDFs & Study Material`
+      : "Resource Library — SSC Books, Notes, PYQs & Roadmaps";
+  const description =
+    parts.length > 0
+      ? `Browse filtered ${parts.join(" ")} PDFs, study notes, previous year papers, and preparation books on SSCStudyPrepHub.`
+      : "Browse 16 subject categories of SSC CGL, CHSL, MTS, CPO, and GD books, study notes, previous year questions, roadmaps, and current affairs PDFs.";
+
+  const canonicalParams = new URLSearchParams();
+  if (exam) canonicalParams.set("exam", exam);
+  if (type) canonicalParams.set("type", type);
+  if (category) canonicalParams.set("category", category);
+  const canonicalQuery = canonicalParams.toString();
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalQuery ? `/library?${canonicalQuery}` : "/library",
+    },
+    robots: q ? { index: false, follow: true } : { index: true, follow: true },
+  };
+}
 
 export default async function LibraryPage({
   searchParams,
@@ -32,11 +66,7 @@ export default async function LibraryPage({
   const sort = typeof sp.sort === "string" ? sp.sort : "newest";
 
   const [categories, resources] = await Promise.all([
-    prisma.category.findMany({
-      where: { isActive: true },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      select: { id: true, name: true, slug: true },
-    }),
+    getCachedActiveCategories(),
     listPublicResources({ q, exam, category, subject, type, access, sort, take: 100 }),
   ]);
 

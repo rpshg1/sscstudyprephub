@@ -15,7 +15,7 @@ export function SamplePreviewViewer({
   samplePageCount: number;
   totalPages: number | null;
 }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const sampleUrl = `/api/resources/${resourceId}/sample`;
 
   return (
@@ -40,12 +40,12 @@ export function SamplePreviewViewer({
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
-            variant="outline"
+            variant={expanded ? "outline" : "primary"}
             size="sm"
             onClick={() => setExpanded((prev) => !prev)}
           >
             {expanded ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {expanded ? "Hide Reader" : "Show Reader"}
+            {expanded ? "Hide Reader" : "Load Sample Reader"}
           </Button>
           <a
             href={sampleUrl}
@@ -60,12 +60,13 @@ export function SamplePreviewViewer({
         </div>
       </div>
 
-      {expanded && (
+      {expanded ? (
         <div className="bg-slate-100 p-2 sm:p-4">
           <div className="overflow-hidden rounded-lg border border-[#E2E8F0] bg-white">
             <iframe
               src={`${sampleUrl}#view=FitH`}
               title={`${resourceTitle} — First ${samplePageCount} Pages Sample`}
+              loading="lazy"
               className="h-[520px] w-full sm:h-[680px]"
             />
           </div>
@@ -81,6 +82,14 @@ export function SamplePreviewViewer({
               Open Sample PDF
             </a>
             .
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col items-start justify-between gap-3 bg-white px-4 py-4 sm:flex-row sm:items-center sm:px-6">
+          <p className="text-xs leading-5 text-slate-600">
+            Preview stays collapsed until requested so this page loads instantly on mobile
+            networks. Click <strong>Load Sample Reader</strong> to read the first{" "}
+            {samplePageCount} pages inline.
           </p>
         </div>
       )}

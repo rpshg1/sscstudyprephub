@@ -12,7 +12,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
 import { listPublicResources } from "@/lib/resources";
 import { BRAND, EXAM_OPTIONS, HOME_FAQS } from "@/lib/constants";
 import { getRazorpayConfigStatus } from "@/lib/razorpay";
@@ -21,7 +20,7 @@ import { SearchBar } from "@/components/search-bar";
 import { ResourceCard } from "@/components/resource-card";
 import { PricingCards } from "@/components/pricing-cards";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const QUICK_CATEGORIES = [
   {
@@ -57,30 +56,61 @@ const QUICK_CATEGORIES = [
 ] as const;
 
 export default async function HomePage() {
-  const [user, popularResources, latestResources, totalResourcesCount] =
+  const [popularResources, latestResources, totalResourcesCount] =
     await Promise.all([
-      getCurrentUser(),
       listPublicResources({ sort: "popular", take: 4 }),
       listPublicResources({ sort: "newest", take: 4 }),
       prisma.resource.count({ where: { isPublished: true } }),
     ]);
 
   const razorpayStatus = getRazorpayConfigStatus();
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ||
+    "https://sscstudyprephub-rpqv.vercel.app";
 
-  const orgJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "EducationalOrganization",
-    name: BRAND.name,
-    alternateName: BRAND.shortName,
-    description: BRAND.heroSubtitle,
-    url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  };
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      name: BRAND.name,
+      alternateName: BRAND.shortName,
+      description: BRAND.heroSubtitle,
+      url: baseUrl,
+      email: BRAND.supportEmail,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: BRAND.name,
+      url: baseUrl,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${baseUrl}/library?q={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: HOME_FAQS.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.answer,
+        },
+      })),
+    },
+  ];
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
       {/* HERO SECTION */}
@@ -281,8 +311,7 @@ export default async function HomePage() {
           </div>
 
           <PricingCards
-            isLoggedIn={Boolean(user)}
-            currentTier={user?.membershipTier}
+            isLoggedIn={false}
             razorpayConfigured={razorpayStatus.configured}
             interactive={false}
           />
