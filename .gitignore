@@ -32,6 +32,15 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# database & protected local pdf storage
+/prisma/*.db
+/prisma/*.db-journal
+/storage/pdfs/*.pdf
+/storage/samples/*.pdf
+/storage/thumbnails/*.png
+/storage/uploads/*
 
 # vercel
 .vercel

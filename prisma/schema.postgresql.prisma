@@ -1,0 +1,362 @@
+// PostgreSQL / Supabase Production Schema for SSCSTUDYPREPHUB (SSPH)
+// To switch from local SQLite to Supabase PostgreSQL:
+// 1. Copy this file over prisma/schema.prisma (or pass --schema prisma/schema.postgresql.prisma)
+// 2. Set DATABASE_URL to your Supabase PostgreSQL connection string
+// 3. Run `npx prisma db push` or `npx prisma migrate deploy`
+// 4. Apply supabase/migrations/0001_initial_schema_with_rls.sql in Supabase SQL Editor if using Supabase Client / RLS
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum MembershipTier {
+  FREE
+  TEN_BOOKS
+  LIFETIME
+}
+
+enum ExamCategory {
+  SSC_CGL
+  SSC_CHSL
+  SSC_MTS
+  SSC_CPO
+  SSC_GD
+  ALL_SSC
+}
+
+enum ResourceType {
+  BOOK
+  NOTES
+  PYQ
+  ROADMAP
+  CURRENT_AFFAIRS
+  PRACTICE_SET
+}
+
+enum AccessType {
+  FREE
+  AD_SUPPORTED
+  PREMIUM
+}
+
+enum StorageType {
+  LOCAL_DEMO_PDF
+  EXTERNAL_URL
+  SUPABASE_STORAGE
+  GOOGLE_DRIVE
+}
+
+enum AdProviderType {
+  SERVER_CALLBACK
+  SHRINKME
+  DEMO
+}
+
+enum AdSessionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+enum UnlockMethod {
+  FREE_DIRECT
+  AD_REWARDED
+  SHRINKME_REDIRECT
+  CREDIT_PASS
+  LIFETIME_PREMIUM
+}
+
+enum PlanType {
+  TEN_BOOKS
+  LIFETIME
+}
+
+enum PurchaseStatus {
+  CREATED
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum ComplaintType {
+  COPYRIGHT_DMCA
+  CONTENT_ERROR
+  PAYMENT_SUPPORT
+  GENERAL
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  TAKEDOWN_APPLIED
+}
+
+model User {
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  name                String
+  passwordHash        String
+  role                Role                 @default(STUDENT)
+  targetExam          ExamCategory         @default(SSC_CGL)
+  phone               String?
+  membershipTier      MembershipTier       @default(FREE)
+  bookCredits         Int                  @default(0)
+  lifetimeActivatedAt DateTime?
+  isActive            Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  sessions            Session[]
+  passwordResets      PasswordResetToken[]
+  unlocks             ResourceUnlock[]
+  downloads           DownloadLog[]
+  downloadTokens      DownloadToken[]
+  adSessions          AdSession[]
+  purchases           Purchase[]
+  savedResources      SavedResource[]
+
+  @@index([role])
+  @@index([membershipTier])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  ipHash    String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  description String
+  iconName    String     @default("BookOpen")
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  resources   Resource[]
+
+  @@index([sortOrder])
+}
+
+model Resource {
+  id               String          @id @default(cuid())
+  slug             String          @unique
+  title            String
+  description      String
+  shortDescription String?
+  examCategory     ExamCategory    @default(SSC_CGL)
+  resourceType     ResourceType    @default(NOTES)
+  subject          String
+  categoryId       String
+  category         Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  coverImageUrl    String?
+  coverAccent      String          @default("#2563EB")
+  storageType      StorageType     @default(LOCAL_DEMO_PDF)
+  protectedFileUrl String?
+  storagePath      String?
+  driveFileId      String?         @unique
+  driveModifiedTime DateTime?
+  sampleStoragePath String?
+  samplePageCount  Int?
+  adShortlinkUrl   String?
+  fileFormat       String          @default("PDF")
+  fileSizeLabel    String          @default("1.2 MB")
+  pageCount        Int?
+  authorSource     String          @default("SSPH Editorial")
+  author           String?
+  publisher        String?
+  yearPublished    Int?
+  language         String          @default("English")
+  edition          String?
+  isbn             String?
+  difficulty       String          @default("intermediate")
+  genreJson        String?
+  subjectsJson     String?
+  examRelevanceJson String?
+  tagsJson         String?
+  seoMetadataJson  String?
+  accessType       AccessType      @default(AD_SUPPORTED)
+  isPublished      Boolean         @default(true)
+  isFeatured       Boolean         @default(false)
+  isDemo           Boolean         @default(false)
+  downloadCount    Int             @default(0)
+  viewCount        Int             @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  unlocks          ResourceUnlock[]
+  adSessions       AdSession[]
+  downloadTokens   DownloadToken[]
+  downloads        DownloadLog[]
+  savedBy          SavedResource[]
+
+  @@index([examCategory])
+  @@index([resourceType])
+  @@index([accessType])
+  @@index([isPublished, isFeatured])
+  @@index([categoryId])
+}
+
+model DriveSyncLog {
+  id            String   @id @default(cuid())
+  trigger       String   @default("manual")
+  status        String   @default("SUCCESS")
+  filesScanned  Int      @default(0)
+  filesImported Int      @default(0)
+  filesUpdated  Int      @default(0)
+  filesSkipped  Int      @default(0)
+  errorMessage  String?
+  detailsJson   String?
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model ResourceUnlock {
+  id           String       @id @default(cuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resourceId   String
+  resource     Resource     @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  unlockMethod UnlockMethod
+  creditUsed   Boolean      @default(false)
+  adSessionId  String?
+  createdAt    DateTime     @default(now())
+
+  @@unique([userId, resourceId])
+  @@index([resourceId])
+}
+
+model AdSession {
+  id          String          @id @default(cuid())
+  token       String          @unique
+  userId      String?
+  user        User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  resourceId  String
+  resource    Resource        @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  provider    AdProviderType
+  status      AdSessionStatus @default(PENDING)
+  externalRef String?
+  verifiedAt  DateTime?
+  metadata    String?
+  expiresAt   DateTime
+  createdAt   DateTime        @default(now())
+
+  @@index([resourceId, status])
+  @@index([expiresAt])
+}
+
+model DownloadToken {
+  id           String       @id @default(cuid())
+  tokenHash    String       @unique
+  userId       String?
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  resourceId   String
+  resource     Resource     @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  unlockMethod UnlockMethod
+  expiresAt    DateTime
+  usedCount    Int          @default(0)
+  maxUses      Int          @default(2)
+  createdAt    DateTime     @default(now())
+
+  @@index([expiresAt])
+}
+
+model DownloadLog {
+  id         String       @id @default(cuid())
+  userId     String?
+  user       User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  resourceId String
+  resource   Resource     @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  method     UnlockMethod
+  ipHash     String?
+  createdAt  DateTime     @default(now())
+
+  @@index([resourceId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Purchase {
+  id                String         @id @default(cuid())
+  userId            String
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planType          PlanType
+  amountPaise       Int
+  currency          String         @default("INR")
+  status            PurchaseStatus @default(CREATED)
+  razorpayOrderId   String         @unique
+  razorpayPaymentId String?        @unique
+  razorpaySignature String?
+  webhookEventId    String?        @unique
+  creditsGranted    Int            @default(0)
+  paidAt            DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([userId, status])
+}
+
+model SavedResource {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, resourceId])
+}
+
+model Complaint {
+  id           String          @id @default(cuid())
+  name         String
+  email        String
+  type         ComplaintType
+  resourceSlug String?
+  subject      String
+  message      String
+  evidenceUrl  String?
+  status       ComplaintStatus @default(OPEN)
+  adminNotes   String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([status, type])
+}
