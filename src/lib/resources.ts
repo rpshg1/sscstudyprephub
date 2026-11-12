@@ -63,6 +63,7 @@ export interface ResourceFilterInput {
   category?: string;
   subject?: string;
   type?: string;
+  excludeTypes?: ResourceType[];
   access?: string;
   sort?: string;
   take?: number;
@@ -89,6 +90,8 @@ export async function listPublicResources(filters: ResourceFilterInput = {}) {
 
   if (filters.type && filters.type !== "ALL") {
     where.resourceType = filters.type as ResourceType;
+  } else if (filters.excludeTypes?.length) {
+    where.resourceType = { notIn: filters.excludeTypes };
   }
 
   if (filters.access && filters.access !== "ALL") {

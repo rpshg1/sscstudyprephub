@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   FileText,
   History,
-  Map,
   Newspaper,
   ShieldCheck,
   Sparkles,
@@ -40,12 +39,6 @@ const QUICK_CATEGORIES = [
     icon: History,
   },
   {
-    title: "Study Roadmaps",
-    description: "Week-by-week planners for Tier-I & Tier-II",
-    href: "/library?type=ROADMAP",
-    icon: Map,
-  },
-  {
     title: "Current Affairs",
     description: "Monthly exam digests & policy updates",
     href: "/library?type=CURRENT_AFFAIRS",
@@ -54,12 +47,21 @@ const QUICK_CATEGORIES = [
 ] as const;
 
 export default async function HomePage() {
-  const [popularResources, latestResources, roadmapResources, totalResourcesCount] =
+  const [popularResources, latestResources, totalResourcesCount] =
     await Promise.all([
-      listPublicResources({ sort: "popular", take: 4 }),
-      listPublicResources({ sort: "newest", take: 4 }),
-      listPublicResources({ type: "ROADMAP", take: 4 }),
-      prisma.resource.count({ where: { isPublished: true } }),
+      listPublicResources({
+        sort: "popular",
+        excludeTypes: ["ROADMAP"],
+        take: 4,
+      }),
+      listPublicResources({
+        sort: "newest",
+        excludeTypes: ["ROADMAP"],
+        take: 4,
+      }),
+      prisma.resource.count({
+        where: { isPublished: true, resourceType: { not: "ROADMAP" } },
+      }),
     ]);
 
   const baseUrl =
@@ -149,7 +151,7 @@ export default async function HomePage() {
 
             <div className="mt-8">
               <SearchBar
-                placeholder="Search books, notes, PYQs and roadmaps..."
+                placeholder="Search books, notes and PYQs..."
                 className="mx-auto max-w-2xl"
               />
             </div>
@@ -196,7 +198,7 @@ export default async function HomePage() {
               Browse by Resource Format
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-              Jump directly to books, concise notes, PYQs, study roadmaps, or current affairs.
+              Jump directly to books, concise notes, PYQs, or current affairs.
             </p>
           </div>
           <Link
@@ -208,7 +210,7 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {QUICK_CATEGORIES.map((cat) => {
             const Icon = cat.icon;
             return (
@@ -255,33 +257,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* FREE STUDY ROADMAPS (NO ADS • DIRECT PDF) */}
-      {roadmapResources.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <Badge tone="green">100% Free • Direct Download (Zero Ads)</Badge>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight text-[#101B33]">
-                Free SSC Study Roadmaps
-              </h2>
-            </div>
-            <Link
-              href="/library?type=ROADMAP"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-[#2563EB] hover:underline"
-            >
-              View all roadmaps
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {roadmapResources.map((resource) => (
-              <ResourceCard key={resource.id} resource={resource} />
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* SSC EXAMINATION CATEGORIES */}
       <section className="border-y border-[#E2E8F0] bg-white">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
@@ -290,8 +265,8 @@ export default async function HomePage() {
               Target Your SSC Examination
             </h2>
             <p className="mt-1.5 text-sm text-slate-600">
-              Filter notes, PYQ compilations, and 12-week roadmaps organized for each
-              Staff Selection Commission examination tier.
+              Filter notes, books, and PYQ compilations organized for each Staff
+              Selection Commission examination tier.
             </p>
           </div>
 

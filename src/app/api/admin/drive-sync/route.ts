@@ -1,11 +1,13 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   getDriveSyncJobStatus,
   getGoogleDriveConfigStatus,
-  startDriveSyncJob,
+  syncGoogleDriveFolder,
 } from "@/lib/google-drive";
 import { jsonError, requireApiAdmin } from "@/lib/api-helpers";
+
+export const maxDuration = 60;
 
 export async function GET() {
   const { errorResponse } = await requireApiAdmin();
@@ -44,10 +46,27 @@ export async function POST(req: Request) {
     maxImportCount?: number;
   };
 
-  const result = startDriveSyncJob("admin_manual", {
-    autoPublish: Boolean(body?.autoPublish),
-    maxImportCount: Number(body?.maxImportCount) || 5,
+  const current = getDriveSyncJobStatus();
+  if (current.running) {
+    return NextResponse.json({ started: false, activeJob: current }, { status: 202 });
+  }
+
+  after(async () => {
+    await syncGoogleDriveFolder("admin_manual", {
+      autoPublish: Boolean(body?.autoPublish),
+      maxImportCount: Number(body?.maxImportCount) || 5,
+    });
   });
 
-  return NextResponse.json(result, { status: 202 });
+  return NextResponse.json(
+    {
+      started: true,
+      activeJob: {
+        ...current,
+        running: true,
+        progressText: "Starting Google Drive sync...",
+      },
+    },
+    { status: 202 }
+  );
 }
