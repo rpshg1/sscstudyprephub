@@ -23,7 +23,7 @@ const QUICK_CATEGORIES = [
   {
     title: "Preparation Books",
     description: "Structured textbooks & subject compendiums",
-    href: "/library?type=BOOK",
+    href: "/books",
     icon: BookOpen,
   },
   {
@@ -35,13 +35,13 @@ const QUICK_CATEGORIES = [
   {
     title: "Previous Year Questions",
     description: "Solved shift papers & practice compilations",
-    href: "/library?type=PYQ",
+    href: "/pyqs",
     icon: History,
   },
   {
-    title: "Current Affairs",
-    description: "Monthly exam digests & policy updates",
-    href: "/library?type=CURRENT_AFFAIRS",
+    title: "Exam Syllabus",
+    description: "Tier-I & Tier-II pattern + downloadable syllabus PDFs",
+    href: "/syllabus",
     icon: Newspaper,
   },
 ] as const;
@@ -158,17 +158,17 @@ export default async function HomePage() {
 
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
-                href="/library"
+                href="/books"
                 className="inline-flex h-11 w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-6 text-sm font-semibold text-white hover:bg-[#1D4ED8] transition-colors"
               >
-                Explore Resources
+                Explore Books
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/library?type=PYQ"
+                href="/pyqs"
                 className="inline-flex h-11 w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-[#101B33] px-6 text-sm font-semibold text-white hover:bg-[#1B2B4F] transition-colors"
               >
-                Browse Previous Year Papers
+                Previous Year Papers (PYQs)
               </Link>
             </div>
 
@@ -202,10 +202,10 @@ export default async function HomePage() {
             </p>
           </div>
           <Link
-            href="/library"
+            href="/books"
             className="inline-flex items-center gap-1 text-sm font-semibold text-[#2563EB] hover:underline"
           >
-            View all 16 subject categories
+            Browse all books
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -242,7 +242,7 @@ export default async function HomePage() {
             </h2>
           </div>
           <Link
-            href="/library?sort=popular"
+            href="/books?sort=popular"
             className="inline-flex items-center gap-1 text-sm font-semibold text-[#2563EB] hover:underline"
           >
             See all popular
@@ -300,7 +300,7 @@ export default async function HomePage() {
             </h2>
           </div>
           <Link
-            href="/library?sort=newest"
+            href="/books?sort=newest"
             className="inline-flex items-center gap-1 text-sm font-semibold text-[#2563EB] hover:underline"
           >
             Browse newest

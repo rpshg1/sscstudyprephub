@@ -16,12 +16,14 @@ interface SuggestionItem {
 
 export function SearchBar({
   initialQuery = "",
-  placeholder = "Search books, notes, PYQs and roadmaps...",
+  placeholder = "Search books, notes, PYQs and syllabus...",
   className = "",
+  basePath = "/library",
 }: {
   initialQuery?: string;
   placeholder?: string;
   className?: string;
+  basePath?: string;
 }) {
   const [query, setQuery] = useState(initialQuery);
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
@@ -72,7 +74,7 @@ export function SearchBar({
     e.preventDefault();
     setOpen(false);
     const trimmed = query.trim();
-    router.push(trimmed ? `/library?q=${encodeURIComponent(trimmed)}` : "/library");
+    router.push(trimmed ? `${basePath}?q=${encodeURIComponent(trimmed)}` : basePath);
   }
 
   return (

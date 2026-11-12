@@ -117,6 +117,12 @@ export const REQUIRED_CATEGORIES = [
     iconName: "Map",
   },
   {
+    name: "Syllabus",
+    slug: "syllabus",
+    description: "Official Tier-I and Tier-II exam pattern, marks breakdown, and SSC syllabus PDFs.",
+    iconName: "ClipboardList",
+  },
+  {
     name: "Current Affairs",
     slug: "current-affairs",
     description: "Monthly and exam-focused national, international, and scheme digests.",

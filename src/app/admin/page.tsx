@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { ensureSyllabusCategory } from "@/lib/resources";
 import {
   getDriveSyncJobStatus,
   getGoogleDriveConfigStatus,
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 
 export default async function AdminPage() {
   const admin = await requireAdmin("/login?next=/admin");
+  await ensureSyllabusCategory().catch(() => {});
 
   const [
     totalResources,

@@ -131,6 +131,23 @@ export async function listPublicResources(filters: ResourceFilterInput = {}) {
   });
 }
 
+export async function ensureSyllabusCategory() {
+  return prisma.category.upsert({
+    where: { slug: "syllabus" },
+    update: {},
+    create: {
+      name: "Syllabus",
+      slug: "syllabus",
+      description:
+        "Official Tier-I and Tier-II exam pattern, marks breakdown, and SSC syllabus PDFs.",
+      iconName: "ClipboardList",
+      sortOrder: 5,
+      isActive: true,
+    },
+    select: { id: true, name: true, slug: true },
+  });
+}
+
 export const getCachedActiveCategories = unstable_cache(
   async () =>
     prisma.category.findMany({

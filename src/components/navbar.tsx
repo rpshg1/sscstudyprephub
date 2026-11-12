@@ -55,8 +55,10 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
 
   const navItems = [
     { href: "/", label: "Home" },
-    { href: "/library", label: "Resource Library" },
-    { href: "/library?type=ROADMAP", label: "Roadmaps" },
+    { href: "/books", label: "Books" },
+    { href: "/roadmaps", label: "Roadmaps" },
+    { href: "/pyqs", label: "PYQs" },
+    { href: "/syllabus", label: "Syllabus" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];
@@ -92,7 +94,7 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "rounded-lg px-2.5 py-2 text-sm font-medium transition-colors whitespace-nowrap",
                   active
                     ? "bg-blue-50 text-[#2563EB] font-semibold"
                     : "text-[#172033] hover:bg-slate-100"

@@ -174,6 +174,24 @@ export default async function ResourceDetailPage({
     },
   };
 
+  const sectionHref =
+    resource.resourceType === "ROADMAP"
+      ? "/roadmaps"
+      : resource.resourceType === "PYQ"
+        ? "/pyqs"
+        : resource.category.slug === "syllabus"
+          ? "/syllabus"
+          : "/books";
+
+  const sectionLabel =
+    resource.resourceType === "ROADMAP"
+      ? "Roadmaps"
+      : resource.resourceType === "PYQ"
+        ? "PYQs"
+        : resource.category.slug === "syllabus"
+          ? "Syllabus"
+          : "Books";
+
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -187,14 +205,14 @@ export default async function ResourceDetailPage({
       {
         "@type": "ListItem",
         position: 2,
-        name: "Resource Library",
-        item: `${baseUrl}/library`,
+        name: sectionLabel,
+        item: `${baseUrl}${sectionHref}`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: resource.category.name,
-        item: `${baseUrl}/library?category=${encodeURIComponent(resource.category.slug)}`,
+        item: `${baseUrl}/books?category=${encodeURIComponent(resource.category.slug)}`,
       },
       {
         "@type": "ListItem",
@@ -224,12 +242,12 @@ export default async function ResourceDetailPage({
               Home
             </Link>
             <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-            <Link href="/library" className="hover:text-[#2563EB]">
-              Library
+            <Link href={sectionHref} className="hover:text-[#2563EB]">
+              {sectionLabel}
             </Link>
             <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
             <Link
-              href={`/library?category=${encodeURIComponent(resource.category.slug)}`}
+              href={`/books?category=${encodeURIComponent(resource.category.slug)}`}
               className="hover:text-[#2563EB]"
             >
               {resource.category.name}
@@ -241,11 +259,11 @@ export default async function ResourceDetailPage({
           </nav>
 
           <Link
-            href="/library"
+            href={sectionHref}
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#2563EB]"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Resource Library
+            Back to {sectionLabel}
           </Link>
         </div>
 

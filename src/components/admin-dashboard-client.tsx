@@ -314,6 +314,25 @@ export function AdminDashboardClient({
     setFormOpen(true);
   }
 
+  function openNewSyllabusForm() {
+    const syllabusCat = categories.find(
+      (c) => c.slug === "syllabus" || c.name.toLowerCase().includes("syllabus")
+    );
+    setForm({
+      ...EMPTY_FORM,
+      resourceType: "NOTES",
+      accessType: "FREE",
+      adShortlinkUrl: "",
+      subject: "SSC Exam Syllabus",
+      categoryId: syllabusCat?.id || categories[0]?.id || "",
+      authorSource: "SSCSTUDYPREPHUB (SSPH) Editorial",
+      isPublished: true,
+      isFeatured: true,
+    });
+    setFeedback(null);
+    setFormOpen(true);
+  }
+
   function openEditResourceForm(r: AdminProps["resources"][number]) {
     setForm({
       id: r.id,
@@ -768,6 +787,10 @@ export function AdminDashboardClient({
         </div>
 
         <div className="flex flex-wrap gap-2.5">
+          <Button onClick={openNewSyllabusForm} variant="outline" size="lg">
+            <Plus className="h-4 w-4 text-[#2563EB]" />
+            Add Free Syllabus
+          </Button>
           <Button onClick={openNewRoadmapForm} variant="outline" size="lg">
             <Plus className="h-4 w-4 text-emerald-600" />
             Add Free Roadmap

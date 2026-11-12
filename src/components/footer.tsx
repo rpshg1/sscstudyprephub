@@ -29,37 +29,32 @@ export function Footer() {
 
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
-              Library & Exams
+              Sections &amp; Exams
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
-                <Link href="/library?exam=SSC_CGL" className="hover:text-white">
-                  SSC CGL Resources
+                <Link href="/books" className="hover:text-white">
+                  SSC Books
                 </Link>
               </li>
               <li>
-                <Link href="/library?exam=SSC_CHSL" className="hover:text-white">
-                  SSC CHSL Resources
+                <Link href="/roadmaps" className="hover:text-white">
+                  Study Roadmaps (Free)
                 </Link>
               </li>
               <li>
-                <Link href="/library?exam=SSC_MTS" className="hover:text-white">
-                  SSC MTS Resources
+                <Link href="/pyqs" className="hover:text-white">
+                  Previous Year Papers (PYQs)
                 </Link>
               </li>
               <li>
-                <Link href="/library?exam=SSC_CPO" className="hover:text-white">
-                  SSC CPO Resources
+                <Link href="/syllabus" className="hover:text-white">
+                  SSC Exam Syllabus
                 </Link>
               </li>
               <li>
-                <Link href="/library?exam=SSC_GD" className="hover:text-white">
-                  SSC GD Resources
-                </Link>
-              </li>
-              <li>
-                <Link href="/library?type=PYQ" className="hover:text-white">
-                  SSC Previous Year Papers
+                <Link href="/books?exam=SSC_CGL" className="hover:text-white">
+                  SSC CGL &amp; CHSL Material
                 </Link>
               </li>
             </ul>

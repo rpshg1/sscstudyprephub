@@ -11,7 +11,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticRoutes = [
     "",
-    "/library",
+    "/books",
+    "/roadmaps",
+    "/pyqs",
+    "/syllabus",
     ...(SUBSCRIPTIONS_ENABLED ? ["/pricing", "/refund-policy"] : []),
     "/about",
     "/contact",
@@ -23,7 +26,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
-    priority: route === "" ? 1.0 : route === "/library" ? 0.9 : 0.7,
+    priority:
+      route === ""
+        ? 1.0
+        : route === "/books" ||
+            route === "/roadmaps" ||
+            route === "/pyqs" ||
+            route === "/syllabus"
+          ? 0.9
+          : 0.7,
   }));
 
   const resources = await prisma.resource.findMany({

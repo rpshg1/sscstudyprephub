@@ -17,7 +17,7 @@ import { PUBLIC_RESOURCE_SELECT } from "../src/lib/resources";
 import { computeSamplePageLimit, inspectAndCreateSamplePdf, readThumbnailPayload } from "../src/lib/pdf-sample";
 import { buildSamplePdfBuffer } from "../src/lib/pdf-generator";
 import { parseHintsFromFilename, SeoBookMetadataSchema } from "../src/lib/metadata-enricher";
-import { extractDriveFolderId, isRoadmapCandidate } from "../src/lib/google-drive";
+import { extractDriveFolderId, isRoadmapCandidate, isSyllabusCandidate } from "../src/lib/google-drive";
 
 const prisma = new PrismaClient();
 
@@ -180,6 +180,14 @@ test("10-15 page sample PDF slicer & filename/Drive folder parser", async () => 
   assert.equal(
     isRoadmapCandidate({ fileName: "Blackbook_Vocabulary_2026.pdf", title: "Blackbook" }),
     false
+  );
+  assert.equal(
+    isSyllabusCandidate({ fileName: "SSC_CGL_Tier1_Tier2_Syllabus_2026.pdf" }),
+    true
+  );
+  assert.equal(
+    isSyllabusCandidate({ fileName: "CGL_Pattern.pdf", fromSyllabusFolder: true }),
+    true
   );
 
   const validMeta = SeoBookMetadataSchema.parse({

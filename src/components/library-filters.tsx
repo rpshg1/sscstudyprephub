@@ -28,9 +28,15 @@ interface FilterState {
 export function LibraryFilters({
   categories,
   state,
+  basePath = "/library",
+  hideTypeFilter = false,
+  hideCategoryFilter = false,
 }: {
   categories: CategoryOption[];
   state: FilterState;
+  basePath?: string;
+  hideTypeFilter?: boolean;
+  hideCategoryFilter?: boolean;
 }) {
   const router = useRouter();
 
@@ -39,12 +45,16 @@ export function LibraryFilters({
     const params = new URLSearchParams();
     if (next.q.trim()) params.set("q", next.q.trim());
     if (next.exam && next.exam !== "ALL") params.set("exam", next.exam);
-    if (next.category && next.category !== "ALL") params.set("category", next.category);
-    if (next.type && next.type !== "ALL") params.set("type", next.type);
+    if (!hideCategoryFilter && next.category && next.category !== "ALL") {
+      params.set("category", next.category);
+    }
+    if (!hideTypeFilter && next.type && next.type !== "ALL") {
+      params.set("type", next.type);
+    }
     if (next.access && next.access !== "ALL") params.set("access", next.access);
     if (next.sort && next.sort !== "newest") params.set("sort", next.sort);
     const qs = params.toString();
-    router.push(qs ? `/library?${qs}` : "/library");
+    router.push(qs ? `${basePath}?${qs}` : basePath);
   }
 
   return (
@@ -68,41 +78,45 @@ export function LibraryFilters({
           </Select>
         </div>
 
-        <div>
-          <label className="mb-1 block text-xs font-semibold text-slate-600">
-            Subject / Category
-          </label>
-          <Select
-            aria-label="Filter by subject category"
-            value={state.category}
-            onChange={(e) => updateFilter({ category: e.target.value })}
-          >
-            <option value="ALL">All 16 Categories</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.slug}>
-                {cat.name}
-              </option>
-            ))}
-          </Select>
-        </div>
+        {!hideCategoryFilter && (
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-600">
+              Subject / Category
+            </label>
+            <Select
+              aria-label="Filter by subject category"
+              value={state.category}
+              onChange={(e) => updateFilter({ category: e.target.value })}
+            >
+              <option value="ALL">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.slug}>
+                  {cat.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+        )}
 
-        <div>
-          <label className="mb-1 block text-xs font-semibold text-slate-600">
-            Resource Type
-          </label>
-          <Select
-            aria-label="Filter by resource type"
-            value={state.type}
-            onChange={(e) => updateFilter({ type: e.target.value })}
-          >
-            <option value="ALL">All Types</option>
-            {RESOURCE_TYPE_OPTIONS.map((rt) => (
-              <option key={rt.value} value={rt.value}>
-                {rt.label}
-              </option>
-            ))}
-          </Select>
-        </div>
+        {!hideTypeFilter && (
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-600">
+              Resource Type
+            </label>
+            <Select
+              aria-label="Filter by resource type"
+              value={state.type}
+              onChange={(e) => updateFilter({ type: e.target.value })}
+            >
+              <option value="ALL">All Types</option>
+              {RESOURCE_TYPE_OPTIONS.map((rt) => (
+                <option key={rt.value} value={rt.value}>
+                  {rt.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+        )}
 
         <div>
           <label className="mb-1 block text-xs font-semibold text-slate-600">
@@ -146,7 +160,7 @@ export function LibraryFilters({
             type="button"
             variant="outline"
             className="w-full"
-            onClick={() => router.push("/library")}
+            onClick={() => router.push(basePath)}
           >
             <RotateCcw className="h-4 w-4" />
             Reset Filters

@@ -4,6 +4,7 @@ import { shortenWithShrinkMeApi } from "@/lib/ads/adapter";
 import { inspectAndCreateSamplePdf } from "@/lib/pdf-sample";
 import { enrichBookMetadata } from "@/lib/metadata-enricher";
 import { validatePdfBuffer } from "@/lib/storage";
+import { ensureSyllabusCategory } from "@/lib/resources";
 
 interface DriveFileItem {
   id: string;
@@ -14,6 +15,7 @@ interface DriveFileItem {
   description?: string;
   webViewLink?: string;
   fromRoadmapsFolder?: boolean;
+  fromSyllabusFolder?: boolean;
 }
 
 export function isRoadmapCandidate(input: {
@@ -26,6 +28,16 @@ export function isRoadmapCandidate(input: {
   return /(?:^|[^a-z])(roadmaps?|road[\s_-]?maps?|study[\s_-]?plans?|strateg(?:y|ies)|timetables?|time[\s_-]?tables?|schedules?|planners?)(?:$|[^a-z])/i.test(
     text
   );
+}
+
+export function isSyllabusCandidate(input: {
+  fileName?: string;
+  title?: string;
+  fromSyllabusFolder?: boolean;
+}): boolean {
+  if (input.fromSyllabusFolder) return true;
+  const text = `${input.fileName || ""} ${input.title || ""}`;
+  return /(?:^|[^a-z])(syllabus|syllabi|exam[\s_-]?pattern)(?:$|[^a-z])/i.test(text);
 }
 
 interface ServiceAccountCreds {
@@ -164,7 +176,10 @@ export async function listDriveFolderPdfs(): Promise<DriveFileItem[]> {
   const dedicatedRoadmapsFolderId = extractDriveFolderId(
     process.env.GOOGLE_DRIVE_ROADMAPS_FOLDER_ID
   );
-  if (!folderId && !dedicatedRoadmapsFolderId) {
+  const dedicatedSyllabusFolderId = extractDriveFolderId(
+    process.env.GOOGLE_DRIVE_SYLLABUS_FOLDER_ID
+  );
+  if (!folderId && !dedicatedRoadmapsFolderId && !dedicatedSyllabusFolderId) {
     throw new Error("GOOGLE_DRIVE_FOLDER_ID is not configured.");
   }
 
@@ -197,7 +212,7 @@ export async function listDriveFolderPdfs(): Promise<DriveFileItem[]> {
     ]);
 
     for (const file of rootPdfs) {
-      merged.set(file.id, { ...file, fromRoadmapsFolder: false });
+      merged.set(file.id, { ...file, fromRoadmapsFolder: false, fromSyllabusFolder: false });
     }
 
     const roadmapSubfolders = subfolders.filter((f) =>
@@ -217,6 +232,22 @@ export async function listDriveFolderPdfs(): Promise<DriveFileItem[]> {
         merged.set(file.id, { ...file, fromRoadmapsFolder: true });
       }
     }
+
+    const syllabusSubfolders = subfolders.filter((f) =>
+      /(?:^|[^a-z])(syllabus|syllabi|exam[\s_-]?pattern)(?:$|[^a-z])/i.test(f.name)
+    );
+
+    for (const sub of syllabusSubfolders) {
+      const subPdfs = await queryDriveFiles(
+        `'${sub.id}' in parents and mimeType='application/pdf' and trashed=false`,
+        pdfFields,
+        accessToken,
+        apiKey
+      ).catch(() => [] as DriveFileItem[]);
+      for (const file of subPdfs) {
+        merged.set(file.id, { ...file, fromSyllabusFolder: true });
+      }
+    }
   }
 
   if (dedicatedRoadmapsFolderId && dedicatedRoadmapsFolderId !== folderId) {
@@ -228,6 +259,22 @@ export async function listDriveFolderPdfs(): Promise<DriveFileItem[]> {
     );
     for (const file of roadmapPdfs) {
       merged.set(file.id, { ...file, fromRoadmapsFolder: true });
+    }
+  }
+
+  if (
+    dedicatedSyllabusFolderId &&
+    dedicatedSyllabusFolderId !== folderId &&
+    dedicatedSyllabusFolderId !== dedicatedRoadmapsFolderId
+  ) {
+    const syllabusPdfs = await queryDriveFiles(
+      `'${dedicatedSyllabusFolderId}' in parents and mimeType='application/pdf' and trashed=false`,
+      pdfFields,
+      accessToken,
+      apiKey
+    );
+    for (const file of syllabusPdfs) {
+      merged.set(file.id, { ...file, fromSyllabusFolder: true });
     }
   }
 
@@ -492,6 +539,7 @@ export async function syncGoogleDriveFolder(
     filesScanned = files.length;
     job.filesScanned = filesScanned;
 
+    await ensureSyllabusCategory().catch(() => {});
     const categories = await prisma.category.findMany({
       where: { isActive: true },
       select: { id: true, slug: true },
@@ -605,14 +653,22 @@ export async function syncGoogleDriveFolder(
           title: enriched.metadata.title,
           fromRoadmapsFolder: file.fromRoadmapsFolder,
         });
+        const isSyllabus =
+          !isRoadmap &&
+          isSyllabusCandidate({
+            fileName: file.name,
+            title: enriched.metadata.title,
+            fromSyllabusFolder: file.fromSyllabusFolder,
+          });
+        const isAlwaysFree = isRoadmap || isSyllabus;
 
-        // 3. Direct Google Drive URL; create ShrinkMe.io free ad-supported link for Books only (Roadmaps stay 100% free & ad-free)
+        // 3. Direct Google Drive URL; create ShrinkMe.io free ad-supported link for Books/PYQs only (Roadmaps & Syllabus stay 100% free & ad-free)
         const driveDirectUrl = buildDriveDirectDownloadUrl(file.id);
-        let adShortlinkUrl: string | null = isRoadmap
+        let adShortlinkUrl: string | null = isAlwaysFree
           ? null
           : existing?.adShortlinkUrl || null;
-        if (isRoadmap) {
-          job.progressText = `Configuring completely free direct download for roadmap ${file.name}...`;
+        if (isAlwaysFree) {
+          job.progressText = `Configuring completely free direct download for ${file.name}...`;
         } else {
           job.progressText = `Creating ShrinkMe.io free link for ${file.name}...`;
           if (!adShortlinkUrl && process.env.SHRINKME_API_TOKEN?.trim()) {
@@ -622,10 +678,12 @@ export async function syncGoogleDriveFolder(
 
         const catSlug = isRoadmap
           ? "study-roadmaps"
-          : mapSubjectToCategorySlug(
-              enriched.metadata.subject,
-              enriched.metadata.title
-            );
+          : isSyllabus
+            ? "syllabus"
+            : mapSubjectToCategorySlug(
+                enriched.metadata.subject,
+                enriched.metadata.title
+              );
         const categoryId = catMap.get(catSlug) || defaultCatId;
         const examCategory = mapExamRelevanceToEnum(enriched.metadata.examRelevance);
 
@@ -634,10 +692,16 @@ export async function syncGoogleDriveFolder(
           description: enriched.metadata.description,
           shortDescription: enriched.metadata.shortDescription || null,
           examCategory,
-          resourceType: isRoadmap ? ("ROADMAP" as const) : ("BOOK" as const),
+          resourceType: isRoadmap
+            ? ("ROADMAP" as const)
+            : isSyllabus
+              ? ("NOTES" as const)
+              : ("BOOK" as const),
           subject: isRoadmap
             ? enriched.metadata.subject[0] || "Study Roadmap"
-            : enriched.metadata.subject[0] || "Competitive Exam Prep",
+            : isSyllabus
+              ? enriched.metadata.subject[0] || "SSC Exam Syllabus"
+              : enriched.metadata.subject[0] || "Competitive Exam Prep",
           categoryId,
           coverImageUrl: pdfInspection.thumbnailUrl || enriched.coverThumbnailUrl,
           storageType: "GOOGLE_DRIVE" as const,
@@ -663,7 +727,7 @@ export async function syncGoogleDriveFolder(
           examRelevanceJson: JSON.stringify(enriched.metadata.examRelevance),
           tagsJson: JSON.stringify(enriched.metadata.tags),
           seoMetadataJson: JSON.stringify(enriched.metadata),
-          accessType: isRoadmap ? ("FREE" as const) : ("AD_SUPPORTED" as const),
+          accessType: isAlwaysFree ? ("FREE" as const) : ("AD_SUPPORTED" as const),
           isPublished: autoPublish,
           isDemo: false,
         };
