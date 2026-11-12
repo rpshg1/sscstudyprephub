@@ -14,11 +14,9 @@ import {
 import { prisma } from "@/lib/prisma";
 import { listPublicResources } from "@/lib/resources";
 import { BRAND, EXAM_OPTIONS, HOME_FAQS } from "@/lib/constants";
-import { getRazorpayConfigStatus } from "@/lib/razorpay";
 import { Badge, Card } from "@/components/ui/primitives";
 import { SearchBar } from "@/components/search-bar";
 import { ResourceCard } from "@/components/resource-card";
-import { PricingCards } from "@/components/pricing-cards";
 
 export const revalidate = 60;
 
@@ -63,7 +61,6 @@ export default async function HomePage() {
       prisma.resource.count({ where: { isPublished: true } }),
     ]);
 
-  const razorpayStatus = getRazorpayConfigStatus();
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ||
     "https://sscstudyprephub-rpqv.vercel.app";
@@ -165,10 +162,10 @@ export default async function HomePage() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/pricing"
+                href="/library?type=PYQ"
                 className="inline-flex h-11 w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-[#E2E8F0] bg-[#101B33] px-6 text-sm font-semibold text-white hover:bg-[#1B2B4F] transition-colors"
               >
-                Get Lifetime Access — ₹300
+                Browse Previous Year Papers
               </Link>
             </div>
 
@@ -179,7 +176,7 @@ export default async function HomePage() {
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <ShieldCheck className="h-4 w-4 text-[#2563EB]" />
-                Free Ad-Supported &amp; Affordable Passes
+                100% Free &amp; Ad-Supported Library
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Award className="h-4 w-4 text-[#101B33]" />
@@ -315,28 +312,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* MEMBERSHIP PRICING */}
-      <section className="border-t border-[#E2E8F0] bg-white py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center mb-10">
-            <Badge tone="blue">Simple Freemium Pricing</Badge>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-[#101B33]">
-              Choose How You Prepare
-            </h2>
-            <p className="mt-2 text-sm text-slate-600">
-              Start free with ad-supported downloads, pick a 10-Book Pass for ₹59, or
-              unlock unlimited direct PDFs with ₹300 Lifetime Premium.
-            </p>
-          </div>
-
-          <PricingCards
-            isLoggedIn={false}
-            razorpayConfigured={razorpayStatus.configured}
-            interactive={false}
-          />
-        </div>
-      </section>
-
       {/* FAQ SECTION */}
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
@@ -344,7 +319,7 @@ export default async function HomePage() {
             Frequently Asked Questions
           </h2>
           <p className="mt-1.5 text-sm text-slate-600">
-            Clear answers on ad unlocks, 10-Book Pass credits, and Lifetime access.
+            Clear answers on free access, ad-supported downloads, and content policy.
           </p>
         </div>
 

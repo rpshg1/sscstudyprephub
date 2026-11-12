@@ -1,3 +1,5 @@
+export const SUBSCRIPTIONS_ENABLED: boolean = false;
+
 export const BRAND = {
   name: "SSCSTUDYPREPHUB",
   shortName: "SSPH",
@@ -190,19 +192,19 @@ export const REQUIRED_CATEGORIES = [
 
 export const HOME_FAQS = [
   {
-    question: "How does the FREE ₹0 plan work?",
+    question: "Are SSC study books and notes free on SSCSTUDYPREPHUB?",
     answer:
-      "You can browse our entire public catalog for free. Open-access resources download directly, while ad-supported resources unlock after completing a verified rewarded advertisement or ad-supported download link (such as ShrinkMe.io when configured by the resource owner).",
+      "Yes. All paid subscriptions and passes are currently paused—every available public study book, note, PYQ compilation, and roadmap is free to access either directly or via an ad-supported download link.",
   },
   {
-    question: "How do credits work on the ₹59 10 Books Pass?",
+    question: "How do ad-supported PDF downloads work?",
     answer:
-      "A one-time payment of ₹59 adds 10 download credits to your student account. Downloading a new eligible book or PDF deducts exactly 1 credit. Re-downloading a resource you already unlocked does not deduct another credit, and failed transactions never consume credits.",
+      "Open-access resources download directly in one click. Ad-supported resources open a verified short advertisement link (such as ShrinkMe.io) and automatically redirect you to the PDF download after completion—no paid subscription required.",
   },
   {
-    question: "What is included in the ₹300 Lifetime Premium membership?",
+    question: "Do I need an account to read sample pages?",
     answer:
-      "Lifetime Premium unlocks unlimited direct PDF downloads across all eligible books, notes, PYQs, current affairs, and roadmaps—without ads—plus future eligible additions to the SSPH library. Membership applies for the lifetime of the SSPH service under our published Terms and Conditions, and only covers materials SSPH owns or is legally authorized to share.",
+      "No. You can search the entire library and read opening sample pages directly in your browser without signing up. Creating a free account lets you bookmark favorite study material and track downloads.",
   },
   {
     question: "Is SSCSTUDYPREPHUB affiliated with SSC or the Government of India?",
@@ -210,9 +212,9 @@ export const HOME_FAQS = [
       "No. SSCSTUDYPREPHUB (SSPH) is an independent educational resource platform built to help aspirants prepare efficiently. We are not affiliated with, endorsed by, or connected to the Staff Selection Commission (SSC) or any government agency.",
   },
   {
-    question: "Are copyrighted third-party textbooks included?",
+    question: "How can an author or publisher request removal of a book?",
     answer:
-      "No. SSPH strictly prohibits pirated or unauthorized books. Administrators may only publish original, licensed, or legally distributable resources. Rights holders can submit a takedown request anytime through our Copyright & DMCA page.",
+      "All PDFs indexed on SSPH are curated from publicly available educational links across the web. If you are an author or copyright holder requesting removal, email sscstudyprephub@gmail.com or use the Copyright & DMCA form and the resource will be removed promptly.",
   },
 ] as const;
 

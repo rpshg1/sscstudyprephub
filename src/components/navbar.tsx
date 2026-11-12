@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BookOpen,
-  CreditCard,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -14,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/primitives";
 import type { SafeUser } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -57,8 +57,8 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
     { href: "/", label: "Home" },
     { href: "/library", label: "Resource Library" },
     { href: "/library?type=ROADMAP", label: "Roadmaps" },
-    { href: "/pricing", label: "Membership" },
     { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
   ];
 
   async function handleLogout() {
@@ -75,7 +75,7 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#E2E8F0] bg-white/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b border-[#E2E8F0] bg-white/95 backdrop-blur-sm dark:border-slate-800 dark:bg-[#0B1220]/95">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <BrandLogo />
 
@@ -106,18 +106,9 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
 
         {/* Desktop Right Actions */}
         <div className="hidden lg:flex items-center gap-2.5">
+          <ThemeToggle />
           {user ? (
             <>
-              <div className="flex items-center gap-2 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs">
-                <span className="font-semibold text-[#101B33]">
-                  {user.membershipTier === "LIFETIME"
-                    ? "Lifetime Premium"
-                    : user.membershipTier === "TEN_BOOKS"
-                      ? `10 Books • ${user.bookCredits} left`
-                      : "Free Plan"}
-                </span>
-              </div>
-
               <Link
                 href="/dashboard"
                 className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm font-semibold text-[#172033] hover:bg-slate-50"
@@ -165,16 +156,19 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
           )}
         </div>
 
-        {/* Mobile Hamburger */}
-        <button
-          type="button"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[#E2E8F0] text-[#101B33] hover:bg-slate-50 lg:hidden"
-          onClick={() => setMobileOpen((prev) => !prev)}
-          aria-expanded={mobileOpen}
-          aria-label="Toggle navigation menu"
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        {/* Mobile Theme Toggle & Hamburger */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <ThemeToggle className="h-10 w-10" />
+          <button
+            type="button"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[#E2E8F0] text-[#101B33] hover:bg-slate-50"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-expanded={mobileOpen}
+            aria-label="Toggle navigation menu"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer */}
@@ -202,12 +196,8 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
                     <UserIcon className="h-4 w-4 text-[#2563EB]" />
                     <span className="truncate max-w-[170px]">{user.name}</span>
                   </div>
-                  <span className="text-xs font-semibold text-[#2563EB]">
-                    {user.membershipTier === "LIFETIME"
-                      ? "Lifetime"
-                      : user.membershipTier === "TEN_BOOKS"
-                        ? `${user.bookCredits} Credits`
-                        : "Free"}
+                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    Free Account
                   </span>
                 </div>
 
@@ -259,15 +249,6 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
                 </Link>
               </div>
             )}
-
-            <Link
-              href="/pricing"
-              onClick={() => setMobileOpen(false)}
-              className="mt-2 flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-semibold text-[#2563EB]"
-            >
-              <CreditCard className="h-4 w-4" />
-              Upgrade: ₹59 Pass / ₹300 Lifetime
-            </Link>
           </nav>
         </div>
       )}

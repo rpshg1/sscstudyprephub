@@ -58,8 +58,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="hover:text-white">
-                  Membership Plans (₹0 / ₹59 / ₹300)
+                <Link href="/library?type=PYQ" className="hover:text-white">
+                  SSC Previous Year Papers
                 </Link>
               </li>
             </ul>
@@ -111,11 +111,6 @@ export function Footer() {
               <li>
                 <Link href="/terms" className="hover:text-white">
                   Terms &amp; Conditions
-                </Link>
-              </li>
-              <li>
-                <Link href="/refund-policy" className="hover:text-white">
-                  Refund Policy
                 </Link>
               </li>
               <li>

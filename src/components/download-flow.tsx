@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { Badge, Button } from "@/components/ui/primitives";
+import { SUBSCRIPTIONS_ENABLED } from "@/lib/constants";
 import type { ResourceAccessSummary } from "@/lib/access";
 import type { AdProviderStatus } from "@/lib/ads/adapter";
 
@@ -292,7 +293,7 @@ export function DownloadFlow({
             <Download className="h-4 w-4" />
             Download Now
           </Button>
-        ) : accessSummary.canUnlockWithCredit ? (
+        ) : SUBSCRIPTIONS_ENABLED && accessSummary.canUnlockWithCredit ? (
           <Button
             size="lg"
             className="flex-1 min-h-11"
@@ -308,13 +309,15 @@ export function DownloadFlow({
           </Button>
         ) : (
           <Link
-            href={isLoggedIn ? "/pricing" : "/login?next=/pricing"}
+            href="/library"
             className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-[#101B33] px-6 text-sm font-semibold text-white hover:bg-[#1B2B4F] transition-colors"
           >
             <Crown className="h-4 w-4 text-blue-300" />
-            {isLoggedIn
-              ? "Unlock with ₹59 Pass or ₹300 Lifetime"
-              : "Login or Upgrade to Download"}
+            {SUBSCRIPTIONS_ENABLED
+              ? isLoggedIn
+                ? "Unlock with ₹59 Pass or ₹300 Lifetime"
+                : "Login or Upgrade to Download"
+              : "Browse Free Resources in Library"}
           </Link>
         )}
 
@@ -341,7 +344,8 @@ export function DownloadFlow({
       )}
 
       {/* Optional 1-click credit unlock alongside Ad-Supported flow */}
-      {accessType === "AD_SUPPORTED" &&
+      {SUBSCRIPTIONS_ENABLED &&
+        accessType === "AD_SUPPORTED" &&
         !isLifetimeOrFreeDirect &&
         accessSummary.canUnlockWithCredit && (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg border border-blue-200 bg-blue-50/70 p-3">
@@ -433,15 +437,17 @@ export function DownloadFlow({
                       <p className="mt-1">{adStatusInfo.message}</p>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    <Link
-                      href="/pricing"
-                      className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#2563EB] px-4 text-xs font-semibold text-white hover:bg-[#1D4ED8]"
-                    >
-                      <Crown className="h-3.5 w-3.5" />
-                      Get 10 Books (₹59) or Lifetime (₹300)
-                    </Link>
-                  </div>
+                  {SUBSCRIPTIONS_ENABLED && (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      <Link
+                        href="/pricing"
+                        className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#2563EB] px-4 text-xs font-semibold text-white hover:bg-[#1D4ED8]"
+                      >
+                        <Crown className="h-3.5 w-3.5" />
+                        Get 10 Books (₹59) or Lifetime (₹300)
+                      </Link>
+                    </div>
+                  )}
                 </div>
               ) : adStatusInfo.mode === "shrinkme" && shrinkMeUrl ? (
                 <div className="space-y-4 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
@@ -517,15 +523,22 @@ export function DownloadFlow({
                 </div>
               )}
 
-              <div className="flex items-center justify-between border-t border-[#E2E8F0] pt-4 text-xs text-slate-600">
-                <span>Prefer instant downloads with zero ads?</span>
-                <Link
-                  href="/pricing"
-                  className="font-semibold text-[#2563EB] hover:underline"
-                >
-                  View ₹59 / ₹300 Plans →
-                </Link>
-              </div>
+              {SUBSCRIPTIONS_ENABLED ? (
+                <div className="flex items-center justify-between border-t border-[#E2E8F0] pt-4 text-xs text-slate-600">
+                  <span>Prefer instant downloads with zero ads?</span>
+                  <Link
+                    href="/pricing"
+                    className="font-semibold text-[#2563EB] hover:underline"
+                  >
+                    View ₹59 / ₹300 Plans →
+                  </Link>
+                </div>
+              ) : (
+                <div className="border-t border-[#E2E8F0] pt-4 text-xs text-slate-600">
+                  Ad-supported links keep {resourceTitle} and the SSCSTUDYPREPHUB library
+                  free for every student.
+                </div>
+              )}
             </div>
           </div>
         </div>

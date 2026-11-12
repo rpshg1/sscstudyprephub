@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --ssph-navy: #101b33;
   --ssph-blue: #2563eb;
@@ -34,4 +36,120 @@ body {
 :focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
+}
+
+/* Global Dark Mode surface & typography palette */
+html.dark body {
+  background-color: #0b1220;
+  color: #e2e8f0;
+}
+
+html.dark .bg-white {
+  background-color: #0f172a;
+}
+
+html.dark .bg-\[\#F8FAFC\],
+html.dark .bg-slate-50 {
+  background-color: #0b1220;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+
+html.dark .bg-blue-50,
+html.dark .bg-blue-50\/70,
+html.dark .bg-blue-50\/60 {
+  background-color: rgba(37, 99, 235, 0.14);
+}
+
+html.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.14);
+}
+
+html.dark .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.14);
+}
+
+html.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.14);
+}
+
+html.dark .border-\[\#E2E8F0\],
+html.dark .border-\[\#CBD5E1\],
+html.dark .divide-\[\#E2E8F0\] > :not(:last-child) {
+  border-color: #1e293b;
+}
+
+html.dark .border-blue-200 {
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+html.dark .border-emerald-200 {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+html.dark .border-amber-200,
+html.dark .border-amber-300 {
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+html.dark .border-red-200 {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+html.dark .text-\[\#101B33\] {
+  color: #f8fafc;
+}
+
+html.dark .text-\[\#172033\],
+html.dark .text-slate-800,
+html.dark .text-slate-700 {
+  color: #e2e8f0;
+}
+
+html.dark .text-slate-600 {
+  color: #cbd5e1;
+}
+
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+  color: #94a3b8;
+}
+
+html.dark .text-\[\#2563EB\] {
+  color: #60a5fa;
+}
+
+html.dark .text-emerald-900,
+html.dark .text-emerald-800,
+html.dark .text-emerald-700 {
+  color: #6ee7b7;
+}
+
+html.dark .text-amber-950,
+html.dark .text-amber-900,
+html.dark .text-amber-800 {
+  color: #fcd34d;
+}
+
+html.dark .text-red-700 {
+  color: #fca5a5;
+}
+
+html.dark .hover\:bg-white:hover,
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover,
+html.dark .hover\:bg-\[\#F8FAFC\]:hover {
+  background-color: #1e293b;
+}
+
+html.dark .hover\:bg-blue-50:hover,
+html.dark .hover\:bg-blue-100:hover {
+  background-color: rgba(37, 99, 235, 0.24);
+}
+
+html.dark select option {
+  background-color: #0f172a;
+  color: #f8fafc;
 }

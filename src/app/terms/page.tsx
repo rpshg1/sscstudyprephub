@@ -24,23 +24,18 @@ export default function TermsPage() {
           materials solely for personal, non-commercial educational preparation.
         </p>
         <h2 className="text-base font-bold text-[#101B33] pt-2">
-          1. Membership Plans &amp; Credits
+          1. Access Model
         </h2>
         <ul className="list-disc pl-5 space-y-1.5">
           <li>
-            <strong>FREE (₹0):</strong> Access to public catalog and ad-supported PDFs via
-            verified ad completion or external ad shortlinks.
+            <strong>FREE &amp; AD-SUPPORTED ACCESS:</strong> Open-access study PDFs can be
+            downloaded directly, and ad-supported resources unlock through verified
+            ad-supported links at no membership fee.
           </li>
           <li>
-            <strong>10 BOOKS PASS (₹59):</strong> One-time payment granting 10 download
-            credits. One credit unlocks one unique eligible resource permanently for your
-            account.
-          </li>
-          <li>
-            <strong>LIFETIME PREMIUM (₹300):</strong> One-time payment granting unlimited
-            direct downloads of eligible SSPH resources for the lifetime of the SSPH
-            service, subject to these Terms. Does not include unauthorized third-party
-            copyrighted textbooks.
+            <strong>SUBSCRIPTIONS PAUSED:</strong> Paid passes and memberships are
+            currently disabled while the platform focuses on free &amp; ad-supported study
+            resources.
           </li>
         </ul>
         <h2 className="text-base font-bold text-[#101B33] pt-2">

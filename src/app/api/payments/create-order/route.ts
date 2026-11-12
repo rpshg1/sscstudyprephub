@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
-import { PRICING_PLANS } from "@/lib/constants";
+import { PRICING_PLANS, SUBSCRIPTIONS_ENABLED } from "@/lib/constants";
 import { createOrderSchema } from "@/lib/validation";
 import { createRazorpayOrder, getRazorpayConfigStatus } from "@/lib/razorpay";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
@@ -9,6 +9,13 @@ import { handleZodError, jsonError, requireApiUser } from "@/lib/api-helpers";
 
 export async function POST(req: Request) {
   try {
+    if (!SUBSCRIPTIONS_ENABLED) {
+      return jsonError(
+        "Paid subscriptions and passes are currently paused. Available study materials are free or ad-supported.",
+        503
+      );
+    }
+
     const ip = getClientIp(req);
     const limit = checkRateLimit(`pay-order:${ip}`, 15, 10 * 60 * 1000);
     if (!limit.allowed) {

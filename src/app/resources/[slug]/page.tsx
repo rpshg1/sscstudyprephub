@@ -452,8 +452,8 @@ export default async function ResourceDetailPage({
                     <span className="text-slate-700">
                       Protected delivery via short-lived signed URLs.{" "}
                       {resource.accessType === "AD_SUPPORTED"
-                        ? "Free via advertisement or instant with 10-Books Pass / Lifetime Premium."
-                        : "Requires 10-Books Pass (1 credit) or Lifetime Premium."}
+                        ? "Free via verified advertisement link."
+                        : "Paid memberships are currently paused."}
                     </span>
                   </>
                 )}

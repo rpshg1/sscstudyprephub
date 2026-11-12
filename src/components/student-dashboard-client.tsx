@@ -16,7 +16,7 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import { Badge, Button, Card, Input, Select } from "@/components/ui/primitives";
-import { EXAM_OPTIONS, formatExamLabel } from "@/lib/constants";
+import { EXAM_OPTIONS, SUBSCRIPTIONS_ENABLED, formatExamLabel } from "@/lib/constants";
 import type { SafeUser } from "@/lib/auth";
 
 interface DashboardProps {
@@ -168,7 +168,7 @@ export function StudentDashboardClient({
           </p>
         </div>
 
-        {user.membershipTier !== "LIFETIME" && (
+        {SUBSCRIPTIONS_ENABLED && user.membershipTier !== "LIFETIME" && (
           <Link
             href="/pricing"
             className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-5 text-sm font-semibold text-white hover:bg-[#1D4ED8]"
@@ -180,34 +180,55 @@ export function StudentDashboardClient({
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-5">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <span>Membership</span>
-            <Crown className="h-4 w-4 text-[#2563EB]" />
-          </div>
-          <p className="mt-2 text-lg font-extrabold text-[#101B33]">
-            {membershipLabel}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            {user.membershipTier === "LIFETIME"
-              ? "Unlimited eligible PDF downloads"
-              : "Upgrade anytime for ad-free access"}
-          </p>
-        </Card>
+      <div
+        className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${
+          SUBSCRIPTIONS_ENABLED ? "lg:grid-cols-4" : "lg:grid-cols-3"
+        }`}
+      >
+        {SUBSCRIPTIONS_ENABLED ? (
+          <>
+            <Card className="p-5">
+              <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <span>Membership</span>
+                <Crown className="h-4 w-4 text-[#2563EB]" />
+              </div>
+              <p className="mt-2 text-lg font-extrabold text-[#101B33]">
+                {membershipLabel}
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                {user.membershipTier === "LIFETIME"
+                  ? "Unlimited eligible PDF downloads"
+                  : "Upgrade anytime for ad-free access"}
+              </p>
+            </Card>
 
-        <Card className="p-5">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500">
-            <span>Book Credits</span>
-            <Coins className="h-4 w-4 text-[#2563EB]" />
-          </div>
-          <p className="mt-2 text-2xl font-extrabold text-[#101B33]">
-            {user.membershipTier === "LIFETIME" ? "Unlimited" : user.bookCredits}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            1 credit per unique unlocked resource
-          </p>
-        </Card>
+            <Card className="p-5">
+              <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <span>Book Credits</span>
+                <Coins className="h-4 w-4 text-[#2563EB]" />
+              </div>
+              <p className="mt-2 text-2xl font-extrabold text-[#101B33]">
+                {user.membershipTier === "LIFETIME" ? "Unlimited" : user.bookCredits}
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                1 credit per unique unlocked resource
+              </p>
+            </Card>
+          </>
+        ) : (
+          <Card className="p-5">
+            <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <span>Target Exam</span>
+              <Crown className="h-4 w-4 text-[#2563EB]" />
+            </div>
+            <p className="mt-2 text-lg font-extrabold text-[#101B33]">
+              {formatExamLabel(user.targetExam)}
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              Free &amp; ad-supported library access
+            </p>
+          </Card>
+        )}
 
         <Card className="p-5">
           <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -235,7 +256,11 @@ export function StudentDashboardClient({
       {/* Navigation Tabs */}
       <div className="flex flex-wrap gap-2 border-b border-[#E2E8F0] pb-3">
         {[
-          { id: "overview", label: "Overview & Orders", icon: CreditCard },
+          {
+            id: "overview",
+            label: SUBSCRIPTIONS_ENABLED ? "Overview & Orders" : "Overview",
+            icon: CreditCard,
+          },
           { id: "downloads", label: "Download History", icon: History },
           { id: "unlocked", label: "Unlocked Resources", icon: Unlock },
           { id: "saved", label: "Saved / Favourites", icon: Bookmark },
@@ -278,36 +303,67 @@ export function StudentDashboardClient({
                 <dt className="text-slate-500">Email</dt>
                 <dd className="font-semibold text-[#101B33]">{user.email}</dd>
               </div>
-              <div className="flex justify-between border-b border-[#E2E8F0] pb-2">
+              <div
+                className={`flex justify-between ${
+                  SUBSCRIPTIONS_ENABLED ? "border-b border-[#E2E8F0] pb-2" : ""
+                }`}
+              >
                 <dt className="text-slate-500">Target Exam</dt>
                 <dd className="font-semibold text-[#101B33]">
                   {formatExamLabel(user.targetExam)}
                 </dd>
               </div>
-              <div className="flex justify-between">
-                <dt className="text-slate-500">Account Tier</dt>
-                <dd className="font-semibold text-[#2563EB]">{membershipLabel}</dd>
-              </div>
+              {SUBSCRIPTIONS_ENABLED && (
+                <div className="flex justify-between">
+                  <dt className="text-slate-500">Account Tier</dt>
+                  <dd className="font-semibold text-[#2563EB]">{membershipLabel}</dd>
+                </div>
+              )}
             </dl>
           </Card>
 
           <Card className="p-6">
             <h2 className="flex items-center gap-2 text-base font-bold text-[#101B33]">
               <CreditCard className="h-4 w-4 text-[#2563EB]" />
-              Membership Purchases &amp; Transactions
+              {SUBSCRIPTIONS_ENABLED || purchases.length > 0
+                ? "Membership Purchases & Transactions"
+                : "Quick Study Shortcuts"}
             </h2>
             {purchases.length === 0 ? (
-              <div className="mt-4 rounded-lg border border-dashed border-[#E2E8F0] p-5 text-center text-xs text-slate-600">
-                No membership purchases recorded yet.
-                <div className="mt-3">
-                  <Link
-                    href="/pricing"
-                    className="font-semibold text-[#2563EB] hover:underline"
-                  >
-                    Explore ₹59 10-Books Pass &amp; ₹300 Lifetime Premium →
-                  </Link>
+              SUBSCRIPTIONS_ENABLED ? (
+                <div className="mt-4 rounded-lg border border-dashed border-[#E2E8F0] p-5 text-center text-xs text-slate-600">
+                  No membership purchases recorded yet.
+                  <div className="mt-3">
+                    <Link
+                      href="/pricing"
+                      className="font-semibold text-[#2563EB] hover:underline"
+                    >
+                      Explore ₹59 10-Books Pass &amp; ₹300 Lifetime Premium →
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  <p className="text-xs leading-relaxed text-slate-600">
+                    All subscriptions are currently paused. Browse available books, study
+                    notes, and PYQs free across all SSC exam categories.
+                  </p>
+                  <div className="flex flex-wrap gap-2.5">
+                    <Link
+                      href="/library"
+                      className="inline-flex h-9 items-center rounded-lg bg-[#2563EB] px-4 text-xs font-semibold text-white hover:bg-[#1D4ED8]"
+                    >
+                      Open Resource Library
+                    </Link>
+                    <Link
+                      href="/library?type=PYQ"
+                      className="inline-flex h-9 items-center rounded-lg border border-[#E2E8F0] bg-white px-4 text-xs font-semibold text-[#172033] hover:bg-slate-50"
+                    >
+                      Browse Previous Year Papers
+                    </Link>
+                  </div>
+                </div>
+              )
             ) : (
               <div className="mt-4 space-y-3">
                 {purchases.map((p) => (

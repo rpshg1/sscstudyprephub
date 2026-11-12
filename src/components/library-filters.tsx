@@ -6,6 +6,7 @@ import {
   ACCESS_TYPE_OPTIONS,
   EXAM_OPTIONS,
   RESOURCE_TYPE_OPTIONS,
+  SUBSCRIPTIONS_ENABLED,
 } from "@/lib/constants";
 import { Button, Select } from "@/components/ui/primitives";
 
@@ -112,8 +113,13 @@ export function LibraryFilters({
             value={state.access}
             onChange={(e) => updateFilter({ access: e.target.value })}
           >
-            <option value="ALL">Free, Ad &amp; Premium</option>
-            {ACCESS_TYPE_OPTIONS.map((acc) => (
+            <option value="ALL">
+              {SUBSCRIPTIONS_ENABLED ? "Free, Ad & Premium" : "All (Free & Ad-Supported)"}
+            </option>
+            {(SUBSCRIPTIONS_ENABLED
+              ? ACCESS_TYPE_OPTIONS
+              : ACCESS_TYPE_OPTIONS.filter((acc) => acc.value !== "PREMIUM")
+            ).map((acc) => (
               <option key={acc.value} value={acc.value}>
                 {acc.label}
               </option>

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { SUBSCRIPTIONS_ENABLED } from "@/lib/constants";
 
 export const revalidate = 3600;
 
@@ -11,12 +12,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     "",
     "/library",
-    "/pricing",
+    ...(SUBSCRIPTIONS_ENABLED ? ["/pricing", "/refund-policy"] : []),
     "/about",
     "/contact",
     "/privacy-policy",
     "/terms",
-    "/refund-policy",
     "/copyright-dmca",
     "/disclaimer",
   ].map((route) => ({

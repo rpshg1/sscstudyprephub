@@ -1,20 +1,56 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ShieldCheck, Info } from "lucide-react";
+import { ArrowRight, BookOpenCheck, ShieldCheck, Info } from "lucide-react";
+import { SUBSCRIPTIONS_ENABLED } from "@/lib/constants";
 import { getRazorpayConfigStatus } from "@/lib/razorpay";
 import { Badge, Card } from "@/components/ui/primitives";
 import { PricingCards } from "@/components/pricing-cards";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: "Membership & Pricing — Free ₹0, 10 Books ₹59, Lifetime ₹300",
-  description:
-    "Compare SSPH plans: Free ad-supported access (₹0), 10 Books Pass (₹59 one-time), and Lifetime Premium membership (₹300 one-time).",
-  alternates: { canonical: "/pricing" },
-};
+export const metadata: Metadata = SUBSCRIPTIONS_ENABLED
+  ? {
+      title: "Membership & Pricing — Free ₹0, 10 Books ₹59, Lifetime ₹300",
+      description:
+        "Compare SSPH plans: Free ad-supported access (₹0), 10 Books Pass (₹59 one-time), and Lifetime Premium membership (₹300 one-time).",
+      alternates: { canonical: "/pricing" },
+    }
+  : {
+      title: "Free Access — Subscriptions Paused",
+      description:
+        "Paid membership plans are currently paused. Access available SSC study books, notes, PYQs, and roadmaps for free on SSPH.",
+      robots: { index: false, follow: true },
+    };
 
 export default async function PricingPage() {
+  if (!SUBSCRIPTIONS_ENABLED) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+        <Card className="p-8 sm:p-10 text-center space-y-5">
+          <Badge tone="green">100% Free &amp; Ad-Supported Right Now</Badge>
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#101B33] sm:text-3xl">
+            Subscriptions Are Currently Paused
+          </h1>
+          <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
+            We have removed all paid subscription plans and passes for now. You can browse
+            the library and access available SSC study PDFs free directly or through
+            ad-supported links.
+          </p>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/library"
+              className="inline-flex h-11 w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-6 text-sm font-semibold text-white hover:bg-[#1D4ED8] transition-colors"
+            >
+              <BookOpenCheck className="h-4 w-4" />
+              Browse Free Resource Library
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   const razorpay = getRazorpayConfigStatus();
 
   return (

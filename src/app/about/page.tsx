@@ -40,10 +40,9 @@ export default function AboutPage() {
           affairs digests in one distraction-free hub.
         </p>
         <p>
-          Our freemium access model keeps essential preparation material accessible to
-          every student at <strong>₹0</strong> via verified ad-supported unlocks, while
-          offering an affordable <strong>₹59 10-Books Pass</strong> and a{" "}
-          <strong>₹300 Lifetime Premium</strong> membership for instant, ad-free downloads.
+          All paid subscriptions are currently paused so every aspirant can explore the
+          library without membership barriers—available study resources are accessible
+          for <strong>₹0</strong> directly or through verified ad-supported links.
         </p>
         <div className="rounded-lg border border-blue-200 bg-blue-50/70 p-4 text-xs text-[#101B33]">
           <strong>Independence Notice:</strong> {BRAND.disclaimerShort}
