@@ -15,10 +15,12 @@ export function ResourceCard({ resource }: { resource: PublicResource }) {
 
   const accessLabel =
     resource.accessType === "FREE"
-      ? "Free"
+      ? resource.resourceType === "ROADMAP"
+        ? "Free Roadmap"
+        : "Free • No Ads"
       : resource.accessType === "AD_SUPPORTED"
         ? "Ad-Supported"
-        : "Premium";
+        : "Paused";
 
   return (
     <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md">
@@ -68,7 +70,7 @@ export function ResourceCard({ resource }: { resource: PublicResource }) {
             className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-4 text-sm font-semibold text-white hover:bg-[#1D4ED8] transition-colors"
           >
             <Download className="h-4 w-4" />
-            Download Now
+            {resource.accessType === "FREE" ? "Download Free PDF" : "Download Now"}
           </Link>
         </div>
       </div>

@@ -57,6 +57,10 @@ export async function POST(req: Request) {
       );
     }
 
+    const isRoadmap = parsed.resourceType === "ROADMAP";
+    const resolvedAccessType = isRoadmap ? "FREE" : parsed.accessType;
+    const resolvedAdShortlink = isRoadmap ? null : parsed.adShortlinkUrl || null;
+
     const created = await prisma.resource.create({
       data: {
         slug: finalSlug,
@@ -75,7 +79,7 @@ export async function POST(req: Request) {
         driveFileId: parsed.driveFileId || null,
         sampleStoragePath: parsed.sampleStoragePath || null,
         samplePageCount: parsed.samplePageCount ?? null,
-        adShortlinkUrl: parsed.adShortlinkUrl || null,
+        adShortlinkUrl: resolvedAdShortlink,
         fileFormat: parsed.fileFormat,
         fileSizeLabel: parsed.fileSizeLabel,
         pageCount: parsed.pageCount ?? null,
@@ -92,7 +96,7 @@ export async function POST(req: Request) {
         examRelevanceJson: parsed.examRelevanceJson || null,
         tagsJson: parsed.tagsJson || null,
         seoMetadataJson: parsed.seoMetadataJson || null,
-        accessType: parsed.accessType,
+        accessType: resolvedAccessType,
         isPublished: parsed.isPublished,
         isFeatured: parsed.isFeatured,
         isDemo: parsed.isDemo,

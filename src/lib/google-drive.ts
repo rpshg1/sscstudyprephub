@@ -13,6 +13,19 @@ interface DriveFileItem {
   modifiedTime?: string;
   description?: string;
   webViewLink?: string;
+  fromRoadmapsFolder?: boolean;
+}
+
+export function isRoadmapCandidate(input: {
+  fileName?: string;
+  title?: string;
+  fromRoadmapsFolder?: boolean;
+}): boolean {
+  if (input.fromRoadmapsFolder) return true;
+  const text = `${input.fileName || ""} ${input.title || ""}`;
+  return /(?:^|[^a-z])(roadmaps?|road[\s_-]?maps?|study[\s_-]?plans?|strateg(?:y|ies)|timetables?|time[\s_-]?tables?|schedules?|planners?)(?:$|[^a-z])/i.test(
+    text
+  );
 }
 
 interface ServiceAccountCreds {
@@ -115,30 +128,15 @@ async function getGoogleAccessToken(): Promise<string | null> {
   return cachedToken.token;
 }
 
-export async function listDriveFolderPdfs(): Promise<DriveFileItem[]> {
-  const folderId = extractDriveFolderId(process.env.GOOGLE_DRIVE_FOLDER_ID);
-  if (!folderId) {
-    throw new Error("GOOGLE_DRIVE_FOLDER_ID is not configured.");
-  }
-
-  const accessToken = await getGoogleAccessToken();
-  const apiKey = process.env.GOOGLE_DRIVE_API_KEY?.trim();
-
-  if (!accessToken && !apiKey) {
-    throw new Error(
-      "Configure GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_DRIVE_API_KEY in environment variables."
-    );
-  }
-
+async function queryDriveFiles(
+  q: string,
+  fields: string,
+  accessToken: string | null,
+  apiKey: string | undefined
+): Promise<DriveFileItem[]> {
   const url = new URL("https://www.googleapis.com/drive/v3/files");
-  url.searchParams.set(
-    "q",
-    `'${folderId}' in parents and mimeType='application/pdf' and trashed=false`
-  );
-  url.searchParams.set(
-    "fields",
-    "files(id,name,mimeType,size,modifiedTime,description,webViewLink)"
-  );
+  url.searchParams.set("q", q);
+  url.searchParams.set("fields", fields);
   url.searchParams.set("orderBy", "modifiedTime desc");
   url.searchParams.set("pageSize", "100");
   url.searchParams.set("supportsAllDrives", "true");
@@ -159,6 +157,81 @@ export async function listDriveFolderPdfs(): Promise<DriveFileItem[]> {
 
   const data = (await res.json()) as { files?: DriveFileItem[] };
   return data.files ?? [];
+}
+
+export async function listDriveFolderPdfs(): Promise<DriveFileItem[]> {
+  const folderId = extractDriveFolderId(process.env.GOOGLE_DRIVE_FOLDER_ID);
+  const dedicatedRoadmapsFolderId = extractDriveFolderId(
+    process.env.GOOGLE_DRIVE_ROADMAPS_FOLDER_ID
+  );
+  if (!folderId && !dedicatedRoadmapsFolderId) {
+    throw new Error("GOOGLE_DRIVE_FOLDER_ID is not configured.");
+  }
+
+  const accessToken = await getGoogleAccessToken();
+  const apiKey = process.env.GOOGLE_DRIVE_API_KEY?.trim();
+
+  if (!accessToken && !apiKey) {
+    throw new Error(
+      "Configure GOOGLE_SERVICE_ACCOUNT_JSON or GOOGLE_DRIVE_API_KEY in environment variables."
+    );
+  }
+
+  const pdfFields = "files(id,name,mimeType,size,modifiedTime,description,webViewLink)";
+  const merged = new Map<string, DriveFileItem>();
+
+  if (folderId) {
+    const [rootPdfs, subfolders] = await Promise.all([
+      queryDriveFiles(
+        `'${folderId}' in parents and mimeType='application/pdf' and trashed=false`,
+        pdfFields,
+        accessToken,
+        apiKey
+      ),
+      queryDriveFiles(
+        `'${folderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+        "files(id,name,mimeType)",
+        accessToken,
+        apiKey
+      ).catch(() => [] as DriveFileItem[]),
+    ]);
+
+    for (const file of rootPdfs) {
+      merged.set(file.id, { ...file, fromRoadmapsFolder: false });
+    }
+
+    const roadmapSubfolders = subfolders.filter((f) =>
+      /(?:^|[^a-z])(roadmaps?|study[\s_-]?plans?|strateg(?:y|ies)|planners?)(?:$|[^a-z])/i.test(
+        f.name
+      )
+    );
+
+    for (const sub of roadmapSubfolders) {
+      const subPdfs = await queryDriveFiles(
+        `'${sub.id}' in parents and mimeType='application/pdf' and trashed=false`,
+        pdfFields,
+        accessToken,
+        apiKey
+      ).catch(() => [] as DriveFileItem[]);
+      for (const file of subPdfs) {
+        merged.set(file.id, { ...file, fromRoadmapsFolder: true });
+      }
+    }
+  }
+
+  if (dedicatedRoadmapsFolderId && dedicatedRoadmapsFolderId !== folderId) {
+    const roadmapPdfs = await queryDriveFiles(
+      `'${dedicatedRoadmapsFolderId}' in parents and mimeType='application/pdf' and trashed=false`,
+      pdfFields,
+      accessToken,
+      apiKey
+    );
+    for (const file of roadmapPdfs) {
+      merged.set(file.id, { ...file, fromRoadmapsFolder: true });
+    }
+  }
+
+  return Array.from(merged.values());
 }
 
 export async function openDriveDownloadStream(fileId: string): Promise<{
@@ -527,18 +600,32 @@ export async function syncGoogleDriveFolder(
           extractedPdfText: pdfInspection.extractedTextSnippet,
         });
 
-        // 3. Direct Google Drive URL (for Paid users) + Auto-Shrink via ShrinkMe.io (for Free users)
-        job.progressText = `Creating ShrinkMe.io free link for ${file.name}...`;
+        const isRoadmap = isRoadmapCandidate({
+          fileName: file.name,
+          title: enriched.metadata.title,
+          fromRoadmapsFolder: file.fromRoadmapsFolder,
+        });
+
+        // 3. Direct Google Drive URL; create ShrinkMe.io free ad-supported link for Books only (Roadmaps stay 100% free & ad-free)
         const driveDirectUrl = buildDriveDirectDownloadUrl(file.id);
-        let adShortlinkUrl = existing?.adShortlinkUrl || null;
-        if (!adShortlinkUrl && process.env.SHRINKME_API_TOKEN?.trim()) {
-          adShortlinkUrl = await shortenWithShrinkMeApi(driveDirectUrl);
+        let adShortlinkUrl: string | null = isRoadmap
+          ? null
+          : existing?.adShortlinkUrl || null;
+        if (isRoadmap) {
+          job.progressText = `Configuring completely free direct download for roadmap ${file.name}...`;
+        } else {
+          job.progressText = `Creating ShrinkMe.io free link for ${file.name}...`;
+          if (!adShortlinkUrl && process.env.SHRINKME_API_TOKEN?.trim()) {
+            adShortlinkUrl = await shortenWithShrinkMeApi(driveDirectUrl);
+          }
         }
 
-        const catSlug = mapSubjectToCategorySlug(
-          enriched.metadata.subject,
-          enriched.metadata.title
-        );
+        const catSlug = isRoadmap
+          ? "study-roadmaps"
+          : mapSubjectToCategorySlug(
+              enriched.metadata.subject,
+              enriched.metadata.title
+            );
         const categoryId = catMap.get(catSlug) || defaultCatId;
         const examCategory = mapExamRelevanceToEnum(enriched.metadata.examRelevance);
 
@@ -547,8 +634,10 @@ export async function syncGoogleDriveFolder(
           description: enriched.metadata.description,
           shortDescription: enriched.metadata.shortDescription || null,
           examCategory,
-          resourceType: "BOOK" as const,
-          subject: enriched.metadata.subject[0] || "Competitive Exam Prep",
+          resourceType: isRoadmap ? ("ROADMAP" as const) : ("BOOK" as const),
+          subject: isRoadmap
+            ? enriched.metadata.subject[0] || "Study Roadmap"
+            : enriched.metadata.subject[0] || "Competitive Exam Prep",
           categoryId,
           coverImageUrl: pdfInspection.thumbnailUrl || enriched.coverThumbnailUrl,
           storageType: "GOOGLE_DRIVE" as const,
@@ -574,7 +663,7 @@ export async function syncGoogleDriveFolder(
           examRelevanceJson: JSON.stringify(enriched.metadata.examRelevance),
           tagsJson: JSON.stringify(enriched.metadata.tags),
           seoMetadataJson: JSON.stringify(enriched.metadata),
-          accessType: "AD_SUPPORTED" as const,
+          accessType: isRoadmap ? ("FREE" as const) : ("AD_SUPPORTED" as const),
           isPublished: autoPublish,
           isDemo: false,
         };

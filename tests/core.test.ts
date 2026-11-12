@@ -17,7 +17,7 @@ import { PUBLIC_RESOURCE_SELECT } from "../src/lib/resources";
 import { computeSamplePageLimit, inspectAndCreateSamplePdf, readThumbnailPayload } from "../src/lib/pdf-sample";
 import { buildSamplePdfBuffer } from "../src/lib/pdf-generator";
 import { parseHintsFromFilename, SeoBookMetadataSchema } from "../src/lib/metadata-enricher";
-import { extractDriveFolderId } from "../src/lib/google-drive";
+import { extractDriveFolderId, isRoadmapCandidate } from "../src/lib/google-drive";
 
 const prisma = new PrismaClient();
 
@@ -168,6 +168,18 @@ test("10-15 page sample PDF slicer & filename/Drive folder parser", async () => 
   assert.equal(
     extractDriveFolderId("https://drive.google.com/drive/folders/1AbCdEfGhIjKlMnOpQr"),
     "1AbCdEfGhIjKlMnOpQr"
+  );
+  assert.equal(
+    isRoadmapCandidate({ fileName: "SSC_CGL_90Days_Roadmap.pdf" }),
+    true
+  );
+  assert.equal(
+    isRoadmapCandidate({ fileName: "CHSL_Plan.pdf", fromRoadmapsFolder: true }),
+    true
+  );
+  assert.equal(
+    isRoadmapCandidate({ fileName: "Blackbook_Vocabulary_2026.pdf", title: "Blackbook" }),
+    false
   );
 
   const validMeta = SeoBookMetadataSchema.parse({

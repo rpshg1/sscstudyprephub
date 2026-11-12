@@ -295,6 +295,25 @@ export function AdminDashboardClient({
     setFormOpen(true);
   }
 
+  function openNewRoadmapForm() {
+    const roadmapCat = categories.find((c) =>
+      c.name.toLowerCase().includes("roadmap")
+    );
+    setForm({
+      ...EMPTY_FORM,
+      resourceType: "ROADMAP",
+      accessType: "FREE",
+      adShortlinkUrl: "",
+      subject: "Study Roadmap",
+      categoryId: roadmapCat?.id || categories[0]?.id || "",
+      authorSource: "SSCSTUDYPREPHUB (SSPH) Editorial",
+      isPublished: true,
+      isFeatured: true,
+    });
+    setFeedback(null);
+    setFormOpen(true);
+  }
+
   function openEditResourceForm(r: AdminProps["resources"][number]) {
     setForm({
       id: r.id,
@@ -748,10 +767,16 @@ export function AdminDashboardClient({
           </p>
         </div>
 
-        <Button onClick={openNewResourceForm} size="lg">
-          <Plus className="h-4 w-4" />
-          Add New Resource
-        </Button>
+        <div className="flex flex-wrap gap-2.5">
+          <Button onClick={openNewRoadmapForm} variant="outline" size="lg">
+            <Plus className="h-4 w-4 text-emerald-600" />
+            Add Free Roadmap
+          </Button>
+          <Button onClick={openNewResourceForm} size="lg">
+            <Plus className="h-4 w-4" />
+            Add New Resource
+          </Button>
+        </div>
       </div>
 
       {/* 5 Summary Stat Cards */}
@@ -910,7 +935,24 @@ export function AdminDashboardClient({
               <label className="mb-1 block text-xs font-semibold">Resource Type *</label>
               <Select
                 value={form.resourceType}
-                onChange={(e) => setForm({ ...form, resourceType: e.target.value })}
+                onChange={(e) => {
+                  const nextType = e.target.value;
+                  if (nextType === "ROADMAP") {
+                    const roadmapCat = categories.find((c) =>
+                      c.name.toLowerCase().includes("roadmap")
+                    );
+                    setForm({
+                      ...form,
+                      resourceType: nextType,
+                      accessType: "FREE",
+                      adShortlinkUrl: "",
+                      categoryId: roadmapCat?.id || form.categoryId,
+                      subject: form.subject || "Study Roadmap",
+                    });
+                  } else {
+                    setForm({ ...form, resourceType: nextType });
+                  }
+                }}
               >
                 {RESOURCE_TYPE_OPTIONS.map((rt) => (
                   <option key={rt.value} value={rt.value}>
@@ -923,7 +965,8 @@ export function AdminDashboardClient({
             <div>
               <label className="mb-1 block text-xs font-semibold">Access Type *</label>
               <Select
-                value={form.accessType}
+                value={form.resourceType === "ROADMAP" ? "FREE" : form.accessType}
+                disabled={form.resourceType === "ROADMAP"}
                 onChange={(e) => setForm({ ...form, accessType: e.target.value })}
               >
                 {ACCESS_TYPE_OPTIONS.map((at) => (
@@ -932,6 +975,11 @@ export function AdminDashboardClient({
                   </option>
                 ))}
               </Select>
+              {form.resourceType === "ROADMAP" && (
+                <p className="mt-1 text-[11px] font-medium text-emerald-700">
+                  Roadmaps are always completely free (no ads, direct download).
+                </p>
+              )}
             </div>
 
             <div>
@@ -1015,34 +1063,41 @@ export function AdminDashboardClient({
                 </div>
               </div>
 
-              <div>
-                <div className="mb-1 flex items-center justify-between gap-2">
-                  <label className="text-xs font-semibold">
-                    ShrinkMe.io Ad-Supported Shortlink (For Free Ad-Supported Downloads)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleAutoShrinkMe}
-                    disabled={generatingShortlink}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:underline cursor-pointer"
-                  >
-                    <Link2 className="h-3.5 w-3.5" />
-                    {generatingShortlink
-                      ? "Generating..."
-                      : "Auto-shorten via ShrinkMe API"}
-                  </button>
+              {form.resourceType === "ROADMAP" ? (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
+                  <strong>Direct Free Download Active:</strong> Roadmaps skip ShrinkMe.io
+                  advertisements and unlock in 1 click for all students with zero ads or
+                  fees.
                 </div>
-                <Input
-                  value={form.adShortlinkUrl}
-                  onChange={(e) => setForm({ ...form, adShortlinkUrl: e.target.value })}
-                  placeholder="https://shrinkme.io/your-short-code"
-                />
-                <p className="mt-1 text-[11px] text-slate-500">
-                  When provided on an Ad-Supported resource, free users are redirected via
-                  ShrinkMe.io to view ads before automatic PDF download; Premium/Pass users
-                  download directly without ShrinkMe ads.
-                </p>
-              </div>
+              ) : (
+                <div>
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <label className="text-xs font-semibold">
+                      ShrinkMe.io Ad-Supported Shortlink (For Free Ad-Supported Downloads)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleAutoShrinkMe}
+                      disabled={generatingShortlink}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#2563EB] hover:underline cursor-pointer"
+                    >
+                      <Link2 className="h-3.5 w-3.5" />
+                      {generatingShortlink
+                        ? "Generating..."
+                        : "Auto-shorten via ShrinkMe API"}
+                    </button>
+                  </div>
+                  <Input
+                    value={form.adShortlinkUrl}
+                    onChange={(e) => setForm({ ...form, adShortlinkUrl: e.target.value })}
+                    placeholder="https://shrinkme.io/your-short-code"
+                  />
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    When provided on an Ad-Supported resource, users complete a quick ad
+                    view via ShrinkMe.io before automatic PDF download.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div>
@@ -1206,9 +1261,11 @@ export function AdminDashboardClient({
                 <p className="mt-1 text-xs text-slate-600">
                   Runs in the background using resilient 24 MB chunked downloads (supports
                   large PDFs up to 1 GB, smallest files first), slices the first 10–15
-                  pages as a free sample, enriches SEO metadata, shrinks links via
-                  ShrinkMe.io for free users, and streams directly from Drive for paid
-                  members.
+                  pages as a sample preview, and enriches SEO metadata. Books receive
+                  ShrinkMe.io ad-supported links, while PDFs inside a{" "}
+                  <strong>Roadmaps</strong> subfolder (or with{" "}
+                  <strong>roadmap / study plan</strong> in their filename) are imported as{" "}
+                  <strong>100% Free Direct-Download Roadmaps (zero ads)</strong>.
                 </p>
                 <label className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-[#172033]">
                   <input

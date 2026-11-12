@@ -24,6 +24,9 @@ export async function PATCH(
       return jsonError("Resource not found.", 404);
     }
 
+    const nextResourceType = parsed.resourceType ?? existing.resourceType;
+    const isRoadmap = nextResourceType === "ROADMAP";
+
     const updated = await prisma.resource.update({
       where: { id },
       data: {
@@ -56,9 +59,11 @@ export async function PATCH(
         ...(parsed.samplePageCount !== undefined
           ? { samplePageCount: parsed.samplePageCount ?? null }
           : {}),
-        ...(parsed.adShortlinkUrl !== undefined
-          ? { adShortlinkUrl: parsed.adShortlinkUrl || null }
-          : {}),
+        ...(isRoadmap
+          ? { adShortlinkUrl: null }
+          : parsed.adShortlinkUrl !== undefined
+            ? { adShortlinkUrl: parsed.adShortlinkUrl || null }
+            : {}),
         ...(parsed.fileFormat !== undefined ? { fileFormat: parsed.fileFormat } : {}),
         ...(parsed.fileSizeLabel !== undefined ? { fileSizeLabel: parsed.fileSizeLabel } : {}),
         ...(parsed.pageCount !== undefined ? { pageCount: parsed.pageCount ?? null } : {}),
@@ -83,7 +88,11 @@ export async function PATCH(
         ...(parsed.seoMetadataJson !== undefined
           ? { seoMetadataJson: parsed.seoMetadataJson || null }
           : {}),
-        ...(parsed.accessType !== undefined ? { accessType: parsed.accessType } : {}),
+        ...(isRoadmap
+          ? { accessType: "FREE" }
+          : parsed.accessType !== undefined
+            ? { accessType: parsed.accessType }
+            : {}),
         ...(parsed.isPublished !== undefined ? { isPublished: parsed.isPublished } : {}),
         ...(parsed.isFeatured !== undefined ? { isFeatured: parsed.isFeatured } : {}),
         ...(parsed.isDemo !== undefined ? { isDemo: parsed.isDemo } : {}),

@@ -281,7 +281,9 @@ export function DownloadFlow({
             {accessSummary.unlockReason === "LIFETIME_PREMIUM" ||
             accessSummary.unlockReason === "ALREADY_UNLOCKED"
               ? "Download PDF"
-              : "Download Now"}
+              : accessType === "FREE"
+                ? "Download Free PDF (No Ads)"
+                : "Download Now"}
           </Button>
         ) : accessType === "AD_SUPPORTED" ? (
           <Button

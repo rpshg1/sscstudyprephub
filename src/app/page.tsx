@@ -54,10 +54,11 @@ const QUICK_CATEGORIES = [
 ] as const;
 
 export default async function HomePage() {
-  const [popularResources, latestResources, totalResourcesCount] =
+  const [popularResources, latestResources, roadmapResources, totalResourcesCount] =
     await Promise.all([
       listPublicResources({ sort: "popular", take: 4 }),
       listPublicResources({ sort: "newest", take: 4 }),
+      listPublicResources({ type: "ROADMAP", take: 4 }),
       prisma.resource.count({ where: { isPublished: true } }),
     ]);
 
@@ -253,6 +254,33 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* FREE STUDY ROADMAPS (NO ADS • DIRECT PDF) */}
+      {roadmapResources.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <Badge tone="green">100% Free • Direct Download (Zero Ads)</Badge>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-[#101B33]">
+                Free SSC Study Roadmaps
+              </h2>
+            </div>
+            <Link
+              href="/library?type=ROADMAP"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-[#2563EB] hover:underline"
+            >
+              View all roadmaps
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {roadmapResources.map((resource) => (
+              <ResourceCard key={resource.id} resource={resource} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* SSC EXAMINATION CATEGORIES */}
       <section className="border-y border-[#E2E8F0] bg-white">
