@@ -59,6 +59,7 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
     { href: "/roadmaps", label: "Roadmaps" },
     { href: "/pyqs", label: "PYQs" },
     { href: "/syllabus", label: "Syllabus" },
+    { href: "/typing", label: "Typing" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];

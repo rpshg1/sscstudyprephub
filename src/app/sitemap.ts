@@ -7,7 +7,7 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ||
-    "http://localhost:3000";
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://sscstudyprephub-rpqv.vercel.app");
 
   const staticRoutes = [
     "",
@@ -15,6 +15,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/roadmaps",
     "/pyqs",
     "/syllabus",
+    "/typing",
+    "/typing/exam",
     ...(SUBSCRIPTIONS_ENABLED ? ["/pricing", "/refund-policy"] : []),
     "/about",
     "/contact",
@@ -32,7 +34,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         : route === "/books" ||
             route === "/roadmaps" ||
             route === "/pyqs" ||
-            route === "/syllabus"
+            route === "/syllabus" ||
+            route === "/typing" ||
+            route === "/typing/exam"
           ? 0.9
           : 0.7,
   }));

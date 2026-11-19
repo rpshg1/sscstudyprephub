@@ -53,6 +53,16 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/typing" className="hover:text-white text-blue-300 font-medium">
+                  Touch Typing (365+ Ch.)
+                </Link>
+              </li>
+              <li>
+                <Link href="/typing/exam" className="hover:text-white">
+                  SSC DEST Exam Simulator
+                </Link>
+              </li>
+              <li>
                 <Link href="/books?exam=SSC_CGL" className="hover:text-white">
                   SSC CGL &amp; CHSL Material
                 </Link>

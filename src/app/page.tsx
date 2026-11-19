@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   FileText,
   History,
+  Keyboard,
   Newspaper,
   ShieldCheck,
   Sparkles,
@@ -229,6 +230,39 @@ export default async function HomePage() {
               </Link>
             );
           })}
+        </div>
+      </section>
+
+      {/* TYPING SECTION CALLOUT */}
+      <section className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+        <div className="relative overflow-hidden rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-800 p-6 sm:p-8 text-white shadow-md dark:border-blue-900">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="max-w-2xl">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-xs">
+                <Sparkles className="h-3.5 w-3.5" /> New: 365+ Interactive Typing Chapters
+              </span>
+              <h3 className="mt-3 text-xl sm:text-2xl font-extrabold text-white">
+                Learn Touch Typing from Scratch for SSC CGL &amp; CHSL DEST
+              </h3>
+              <p className="mt-1.5 text-sm text-blue-100 leading-relaxed">
+                Master 10-finger typing with our interactive virtual keyboard, hand-placement guides, and official 2000-keystroke commission exam simulator. 100% free with step-by-step tutorials.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <Link
+                href="/typing"
+                className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-blue-700 shadow-sm hover:bg-blue-50 transition-all active:scale-95"
+              >
+                <Keyboard className="h-4 w-4" /> Start Typing (Free)
+              </Link>
+              <Link
+                href="/typing/exam"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur-xs hover:bg-white/20 transition-all"
+              >
+                DEST Simulator
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
