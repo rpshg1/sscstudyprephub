@@ -30,7 +30,7 @@ const QUICK_CATEGORIES = [
   {
     title: "Study Notes",
     description: "Chapter-wise formulas & quick revision PDFs",
-    href: "/library?type=NOTES",
+    href: "/books?category=study-notes",
     icon: FileText,
   },
   {
@@ -308,7 +308,7 @@ export default async function HomePage() {
             {EXAM_OPTIONS.filter((e) => e.value !== "ALL_SSC").map((exam) => (
               <Link
                 key={exam.value}
-                href={`/library?exam=${exam.value}`}
+                href={`/books?exam=${exam.value}`}
                 className="group rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-5 hover:border-[#2563EB] hover:bg-white transition-all"
               >
                 <div className="flex items-center justify-between">
@@ -320,6 +320,143 @@ export default async function HomePage() {
                 <p className="mt-1.5 text-xs text-slate-600">{exam.fullName}</p>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SSC PREPARATION SUBJECT PILLARS & TOPICAL SEO */}
+      <section className="bg-slate-50/70 border-b border-[#E2E8F0] dark:bg-slate-900/40 dark:border-slate-800">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <Badge tone="blue">Complete Tier-I &amp; Tier-II Syllabus Coverage</Badge>
+            <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#101B33] dark:text-white">
+              Subject-Wise Study Resources &amp; Exam Pillars
+            </h2>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              Every Staff Selection Commission exam tier demands precision across 5 core sections. Access chapter-wise notes, solved MCQs, formula books, and practice tests designed for high retention.
+            </p>
+          </div>
+
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs dark:border-slate-800 dark:bg-[#0F172A]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400 font-bold">
+                  QA
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Quantitative Aptitude</h3>
+                  <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold">Arithmetic &amp; Advance Maths</span>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                Percentages, Profit &amp; Loss, SI/CI, Time &amp; Work, Ratio, Mixture, along with Advance Geometry, Trigonometry, Algebra, Mensuration 2D/3D, and Coordinate Geometry.
+              </p>
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <Link href="/books?subject=Quantitative+Aptitude" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
+                  Maths Books &amp; Formulas &rarr;
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs dark:border-slate-800 dark:bg-[#0F172A]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 font-bold">
+                  ENG
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">English Comprehension</h3>
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">Grammar &amp; Vocabulary</span>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                120 Rules of Grammar, One-Word Substitutions, Idioms &amp; Phrases, Synonyms/Antonyms, Cloze Test, Active/Passive Voice, Direct/Indirect Speech, and Reading Comprehension.
+              </p>
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <Link href="/books?subject=English" className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline">
+                  English Vocabulary &amp; Grammar &rarr;
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs dark:border-slate-800 dark:bg-[#0F172A]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400 font-bold">
+                  REAS
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Reasoning &amp; Intelligence</h3>
+                  <span className="text-xs text-purple-600 dark:text-purple-400 font-semibold">Verbal &amp; Non-Verbal Logic</span>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                Syllogisms, Coding-Decoding, Blood Relations, Direction Sense, Seating Arrangement, Analogies, Number Series, Paper Folding, and Venn Diagrams.
+              </p>
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <Link href="/books?subject=Reasoning" className="text-purple-600 dark:text-purple-400 font-bold hover:underline">
+                  Reasoning Practice Sets &rarr;
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs dark:border-slate-800 dark:bg-[#0F172A]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400 font-bold">
+                  GA
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">General Awareness</h3>
+                  <span className="text-xs text-amber-600 dark:text-amber-400 font-semibold">Static GK &amp; Current Affairs</span>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                Indian Polity &amp; Constitution, Modern &amp; Ancient History, Physical &amp; Indian Geography, Economics, Five-Year Plans, Union Budget, and General Science (NCERT summary).
+              </p>
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <Link href="/books?subject=General+Awareness" className="text-amber-600 dark:text-amber-400 font-bold hover:underline">
+                  GK &amp; Static Notes &rarr;
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs dark:border-slate-800 dark:bg-[#0F172A]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-100 text-cyan-600 dark:bg-cyan-950 dark:text-cyan-400 font-bold">
+                  DEST
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Touch Typing &amp; DEST</h3>
+                  <span className="text-xs text-cyan-600 dark:text-cyan-400 font-semibold">Tier-II Qualifying Simulator</span>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                365-chapter progressive touch typing course with 8 hand-placement stages, tactile bump guides, and 2,000 keystroke 15-minute SSC CGL / CHSL DEST exam simulations.
+              </p>
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <Link href="/typing" className="text-cyan-600 dark:text-cyan-400 font-bold hover:underline">
+                  Start Typing Course (Free) &rarr;
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs dark:border-slate-800 dark:bg-[#0F172A]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400 font-bold">
+                  PYQ
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Solved PYQ Papers</h3>
+                  <span className="text-xs text-rose-600 dark:text-rose-400 font-semibold">TCS Shift-Wise Solutions</span>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                Authentic TCS-conducted exam shifts for SSC CGL, CHSL, MTS, CPO, and GD with verified commission answer keys and detailed mathematical step-by-step solutions.
+              </p>
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                <Link href="/pyqs" className="text-rose-600 dark:text-rose-400 font-bold hover:underline">
+                  Browse Solved Papers &rarr;
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

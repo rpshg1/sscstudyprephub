@@ -198,29 +198,34 @@ export const REQUIRED_CATEGORIES = [
 
 export const HOME_FAQS = [
   {
-    question: "Are SSC study books and notes free on SSCSTUDYPREPHUB?",
+    question: "Is SSCSTUDYPREPHUB (SSPH) completely free for SSC preparation materials?",
     answer:
-      "Yes. All paid subscriptions and passes are currently paused—every available public study book, note, PYQ compilation, and roadmap is free to access either directly or via an ad-supported download link.",
+      "Yes. All paid subscriptions and passes are currently paused—every curated textbook, chapter-wise formula sheet, previous year question paper (PYQ), and study roadmap is free to access either directly or via an ad-supported link. The 365-chapter touch typing course and SSC DEST exam simulator are also 100% free.",
   },
   {
-    question: "How do ad-supported PDF downloads work?",
+    question: "How should I prepare for the SSC CGL & CHSL Tier-II DEST typing test?",
     answer:
-      "Open-access resources download directly in one click. Ad-supported resources open a verified short advertisement link (such as ShrinkMe.io) and automatically redirect you to the PDF download after completion—no paid subscription required.",
+      "For SSC CGL DEST (2,000 keystrokes in 15 min, ~27–35 WPM) and CHSL DEST (1,750 keystrokes in 10 min, 35 WPM English), practice using our free interactive 365-chapter Touch Typing course at /typing. Train without looking at your keyboard by finding the tactile bumps on F and J, and test your speed on our official commission DEST exam simulator at /typing/exam.",
   },
   {
-    question: "Do I need an account to read sample pages?",
+    question: "Which books are best for SSC CGL Mathematics, English, and Reasoning?",
     answer:
-      "No. You can search the entire library and read opening sample pages directly in your browser without signing up. Creating a free account lets you bookmark favorite study material and track downloads.",
+      "Standard student-favorite references include Pinnacle SSC Mathematics 6800+ TCS MCQ book and Rakesh Yadav Class Notes for Quantitative Aptitude, Neetu Singh Plinth to Paramount and Blackbook of English Vocabulary for English Comprehension, and Kiran / Pinnacle chapter-wise solved papers for General Intelligence & Reasoning.",
   },
   {
-    question: "Is SSCSTUDYPREPHUB affiliated with SSC or the Government of India?",
+    question: "Are previous year question papers (PYQs) enough to crack SSC exams?",
     answer:
-      "No. SSCSTUDYPREPHUB (SSPH) is an independent educational resource platform built to help aspirants prepare efficiently. We are not affiliated with, endorsed by, or connected to the Staff Selection Commission (SSC) or any government agency.",
+      "Solving authentic TCS-conducted shift papers from 2018 onwards is the single most effective way to prepare for SSC CGL, CHSL, and MTS. Practicing PYQs helps you understand recurring question archetypes, formula patterns, and time management for Tier-I and Tier-II.",
   },
   {
-    question: "How can an author or publisher request removal of a book?",
+    question: "How do free direct and ad-supported PDF downloads work?",
     answer:
-      "All PDFs indexed on SSPH are curated from publicly available educational links across the web. If you are an author or copyright holder requesting removal, email sscstudyprephub@gmail.com or use the Copyright & DMCA form and the resource will be removed promptly.",
+      "Open-access resources download directly in one click. Ad-supported resources open a verified short advertisement link (such as ShrinkMe.io) and automatically redirect you to the high-speed Google Drive PDF download upon completion—no paid account or credit card required.",
+  },
+  {
+    question: "How can an author or publisher request removal of a book under DMCA?",
+    answer:
+      "All PDFs indexed on SSPH are curated from publicly available educational links across the web. If you are an author or copyright holder requesting removal, email sscstudyprephub@gmail.com or submit the Copyright & DMCA form and the resource will be removed promptly within 24–48 hours.",
   },
 ] as const;
 
