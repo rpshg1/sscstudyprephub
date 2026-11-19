@@ -89,12 +89,12 @@ export default async function HomePage() {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: BRAND.name,
-      alternateName: BRAND.shortName,
-      url: baseUrl,
+      alternateName: [BRAND.shortName, "SSC Study Prep Hub", "sscstudyprephub-rpqv.vercel.app"],
+      url: `${baseUrl}/`,
       publisher: {
         "@type": "Organization",
         name: BRAND.name,
-        url: baseUrl,
+        url: `${baseUrl}/`,
         logo: {
           "@type": "ImageObject",
           url: `${baseUrl}/logo.png`,
@@ -106,7 +106,7 @@ export default async function HomePage() {
         "@type": "SearchAction",
         target: {
           "@type": "EntryPoint",
-          urlTemplate: `${baseUrl}/library?q={search_term_string}`,
+          urlTemplate: `${baseUrl}/books?q={search_term_string}`,
         },
         "query-input": "required name=search_term_string",
       },

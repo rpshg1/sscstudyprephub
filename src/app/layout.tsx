@@ -19,9 +19,20 @@ const jetBrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
-const googleVerification =
-  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || undefined;
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://sscstudyprephub-rpqv.vercel.app");
+
+function parseGoogleVerification(raw?: string): string | undefined {
+  if (!raw) return undefined;
+  const match = raw.match(/content=["']([^"']+)["']/i);
+  if (match) return match[1].trim();
+  return raw.replace(/^["']|["']$/g, "").trim();
+}
+
+const googleVerification = parseGoogleVerification(
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim()
+);
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
