@@ -282,12 +282,20 @@ export default function TypingHubPage() {
 
                   {/* Keys Introduced */}
                   {chapter.newKeys.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {chapter.newKeys.slice(0, 4).map((k) => (
+                    <div className="mt-2.5 flex flex-wrap items-center gap-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                        New:
+                      </span>
+                      {chapter.newKeys.map((k) => (
                         <span
                           key={k}
-                          className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                          className="rounded-md bg-amber-50 border border-amber-200 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-800 dark:bg-amber-950/60 dark:border-amber-900/50 dark:text-amber-300"
                         >
+                          {k === " " ? "␣ Space" : k.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                           {k === " " ? "Space" : k}
                         </span>
                       ))}

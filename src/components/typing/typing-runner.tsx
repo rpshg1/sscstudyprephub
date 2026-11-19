@@ -16,6 +16,11 @@ import {
   Maximize2,
   Minimize2,
   Sparkles,
+  Eye,
+  EyeOff,
+  Keyboard,
+  Hand,
+  Sliders,
 } from "lucide-react";
 import { TypingChapter } from "@/lib/typing/types";
 import { getKeyFingerInfo } from "@/lib/typing/finger-mapping";
@@ -24,6 +29,7 @@ import { saveChapterProgress, calculateStars } from "@/lib/typing/storage";
 import { HandsGuide } from "./hands-guide";
 import { VirtualKeyboard } from "./virtual-keyboard";
 import { PostureModal } from "./posture-modal";
+import { NewKeyModal } from "./new-key-modal";
 
 interface TypingRunnerProps {
   chapter: TypingChapter;
@@ -42,11 +48,16 @@ export function TypingRunner({ chapter }: TypingRunnerProps) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [soundMuted, setSoundMuted] = useState(false);
   const [showTutorialModal, setShowTutorialModal] = useState(false);
+  const [showNewKeyModal, setShowNewKeyModal] = useState(chapter.newKeys.length > 0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
+  const [showVisualKeyboard, setShowVisualKeyboard] = useState(true);
+  const [showHandsGuide, setShowHandsGuide] = useState(true);
 
   // Hidden input element ref for capturing keyboard input smoothly on desktop & mobile
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const textDisplayRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Current target character
@@ -126,7 +137,7 @@ export function TypingRunner({ chapter }: TypingRunnerProps) {
 
   // Key Down Handler
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (isCompleted) return;
+    if (isCompleted || showNewKeyModal || showTutorialModal) return;
 
     // Reset shortcut: Esc
     if (e.key === "Escape") {
@@ -189,6 +200,14 @@ export function TypingRunner({ chapter }: TypingRunnerProps) {
     }
   };
 
+  // Auto focus input on modal close
+  const handleCloseNewKeyModal = () => {
+    setShowNewKeyModal(false);
+    setTimeout(() => {
+      if (inputRef.current) inputRef.current.focus();
+    }, 100);
+  };
+
   // Toggle fullscreen
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -210,97 +229,152 @@ export function TypingRunner({ chapter }: TypingRunnerProps) {
   return (
     <div
       ref={containerRef}
-      className={`mx-auto max-w-5xl transition-all ${
-        isFullscreen ? "p-6 bg-slate-900 text-white min-h-screen" : "py-4 sm:py-6"
+      className={`mx-auto max-w-5xl transition-all duration-300 ${
+        isFullscreen
+          ? "p-6 bg-slate-950 text-white min-h-screen flex flex-col justify-center"
+          : "py-4 sm:py-6"
       }`}
     >
-      {/* Top Header / Breadcrumbs */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4 dark:border-slate-800">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/typing"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
-          >
-            <ArrowLeft className="h-4 w-4" /> Chapters
-          </Link>
+      {/* Top Header / Breadcrumbs (Hidden in Zen/Focus Mode) */}
+      {!focusMode && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 pb-4 dark:border-slate-800">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/typing"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" /> Chapters
+            </Link>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-md bg-blue-100 px-2 py-0.5 font-mono text-[11px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                Chapter {chapter.id} of 365
-              </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                Stage {chapter.stageNumber}: {chapter.stageTitle}
-              </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-blue-100 px-2 py-0.5 font-mono text-[11px] font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                  Chapter {chapter.id} of 365
+                </span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  Stage {chapter.stageNumber}: {chapter.stageTitle}
+                </span>
+              </div>
+              <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mt-0.5 tracking-tight">
+                {chapter.title}
+              </h1>
             </div>
-            <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mt-0.5">
-              {chapter.title}
-            </h1>
+          </div>
+
+          {/* Action Toolbar */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* New Key Guide Trigger Button */}
+            {chapter.newKeys.length > 0 && (
+              <button
+                onClick={() => setShowNewKeyModal(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800 shadow-2xs hover:bg-amber-100 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300 transition-all active:scale-95"
+                title="View Finger Placement for New Keys"
+              >
+                <Hand className="h-4 w-4 text-amber-600" />
+                <span>Finger Guide ({chapter.newKeys.join(", ")})</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => setShowTutorialModal(true)}
+              className="inline-flex items-center gap-1 rounded-xl border border-slate-200/80 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 transition-colors"
+              title="Posture & Ergonomics Masterclass"
+            >
+              <HelpCircle className="h-4 w-4 text-blue-600" />
+              <span className="hidden sm:inline">Posture</span>
+            </button>
+
+            <button
+              onClick={() => setFocusMode(!focusMode)}
+              className={`inline-flex items-center gap-1 rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                focusMode
+                  ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                  : "border-slate-200/80 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+              }`}
+              title="Toggle Minimal Focus Mode"
+            >
+              <Zap className="h-4 w-4" />
+              <span className="hidden sm:inline">Focus</span>
+            </button>
+
+            <button
+              onClick={toggleMute}
+              className="inline-flex items-center gap-1 rounded-xl border border-slate-200/80 bg-white p-2 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 transition-colors"
+              title={soundMuted ? "Unmute Mechanical Sound" : "Mute Sound"}
+            >
+              {soundMuted ? (
+                <VolumeX className="h-4 w-4 text-slate-400" />
+              ) : (
+                <Volume2 className="h-4 w-4 text-emerald-600" />
+              )}
+            </button>
+
+            <button
+              onClick={handleReset}
+              className="inline-flex items-center gap-1 rounded-xl border border-slate-200/80 bg-white p-2 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 transition-colors"
+              title="Restart Drill (Esc)"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </button>
+
+            <button
+              onClick={toggleFullscreen}
+              className="hidden sm:inline-flex items-center gap-1 rounded-xl border border-slate-200/80 bg-white p-2 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 transition-colors"
+              title="Toggle Fullscreen Mode"
+            >
+              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </button>
           </div>
         </div>
+      )}
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowTutorialModal(true)}
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 transition-colors"
-            title="Posture & Hand Guide"
-          >
-            <HelpCircle className="h-4 w-4 text-blue-600" />
-            <span className="hidden sm:inline">Hand Tutorial</span>
-          </button>
+      {/* Focus Mode Exit Floating Bar */}
+      {focusMode && (
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Zen Focus Mode</span>
+            <span className="font-mono text-slate-500">• Ch. {chapter.id}</span>
+          </div>
 
-          <button
-            onClick={toggleMute}
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-2 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
-            title={soundMuted ? "Unmute Sound" : "Mute Sound"}
-          >
-            {soundMuted ? (
-              <VolumeX className="h-4 w-4 text-slate-400" />
-            ) : (
-              <Volume2 className="h-4 w-4 text-emerald-600" />
-            )}
-          </button>
-
-          <button
-            onClick={handleReset}
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-2 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
-            title="Restart Drill (Esc)"
-          >
-            <RotateCcw className="h-4 w-4" />
-          </button>
-
-          <button
-            onClick={toggleFullscreen}
-            className="hidden sm:inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-2 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
-            title="Toggle Fullscreen Focus"
-          >
-            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleReset}
+              className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+            >
+              Restart (Esc)
+            </button>
+            <button
+              onClick={() => setFocusMode(false)}
+              className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+            >
+              Exit Focus
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Real-time HUD Bar */}
+      {/* Real-time Minimalist HUD Bar */}
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs dark:border-slate-800 dark:bg-[#0F172A]">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Speed (Net WPM)
+        <div className="rounded-2xl border border-slate-200/80 bg-white/80 p-3.5 shadow-2xs backdrop-blur-sm dark:border-slate-800 dark:bg-[#0B1220]/80">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Net Speed
           </span>
           <div className="flex items-baseline gap-1 mt-0.5">
-            <span className="text-2xl font-extrabold text-blue-600 dark:text-blue-400">
+            <span className="text-2xl sm:text-3xl font-extrabold text-blue-600 dark:text-blue-400 font-mono">
               {netWpm}
             </span>
-            <span className="text-xs text-slate-400">/ {chapter.targetWpm} target</span>
+            <span className="text-xs text-slate-400 font-mono">/ {chapter.targetWpm} WPM</span>
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs dark:border-slate-800 dark:bg-[#0F172A]">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        <div className="rounded-2xl border border-slate-200/80 bg-white/80 p-3.5 shadow-2xs backdrop-blur-sm dark:border-slate-800 dark:bg-[#0B1220]/80">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Accuracy
           </span>
           <div className="flex items-baseline gap-1 mt-0.5">
             <span
-              className={`text-2xl font-extrabold ${
+              className={`text-2xl sm:text-3xl font-extrabold font-mono ${
                 accuracy >= chapter.minAccuracy
                   ? "text-emerald-600 dark:text-emerald-400"
                   : "text-amber-500"
@@ -308,28 +382,28 @@ export function TypingRunner({ chapter }: TypingRunnerProps) {
             >
               {accuracy}%
             </span>
-            <span className="text-xs text-slate-400">/ {chapter.minAccuracy}% min</span>
+            <span className="text-xs text-slate-400 font-mono">/ {chapter.minAccuracy}% min</span>
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs dark:border-slate-800 dark:bg-[#0F172A]">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Time Taken
+        <div className="rounded-2xl border border-slate-200/80 bg-white/80 p-3.5 shadow-2xs backdrop-blur-sm dark:border-slate-800 dark:bg-[#0B1220]/80">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Timer
           </span>
-          <div className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-0.5 font-mono">
+          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5 font-mono">
             {Math.floor(elapsedSeconds / 60)}:
             {(elapsedSeconds % 60).toString().padStart(2, "0")}
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs dark:border-slate-800 dark:bg-[#0F172A]">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        <div className="rounded-2xl border border-slate-200/80 bg-white/80 p-3.5 shadow-2xs backdrop-blur-sm dark:border-slate-800 dark:bg-[#0B1220]/80">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Progress
           </span>
-          <div className="flex items-center gap-2 mt-1.5">
+          <div className="flex items-center gap-2 mt-2">
             <div className="h-2 flex-1 rounded-full bg-slate-100 overflow-hidden dark:bg-slate-800">
               <div
-                className="h-full bg-blue-600 transition-all duration-150 rounded-full"
+                className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-150 rounded-full"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -340,10 +414,10 @@ export function TypingRunner({ chapter }: TypingRunnerProps) {
         </div>
       </div>
 
-      {/* Main Interactive Typing Box */}
+      {/* Main Interactive Typing Canvas */}
       <div
         onClick={ensureFocus}
-        className="relative mt-4 cursor-text rounded-2xl border-2 border-slate-200 bg-white p-6 sm:p-8 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 dark:border-slate-800 dark:bg-[#0B1220] dark:focus-within:border-blue-400 dark:focus-within:ring-blue-950/50 min-h-[160px] flex flex-col justify-center"
+        className="relative mt-4 cursor-text rounded-3xl border-2 border-slate-200/90 bg-white p-6 sm:p-10 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 dark:border-slate-800/90 dark:bg-[#0B1220] dark:focus-within:border-blue-400 dark:focus-within:ring-blue-950/50 min-h-[170px] flex flex-col justify-center select-none"
       >
         {/* Hidden capturing input */}
         <input
@@ -358,32 +432,36 @@ export function TypingRunner({ chapter }: TypingRunnerProps) {
         />
 
         {/* Character Stream Display */}
-        <div className="font-mono text-xl sm:text-2xl leading-relaxed tracking-wide select-none break-words">
+        <div
+          ref={textDisplayRef}
+          className="font-mono text-2xl sm:text-3xl leading-relaxed tracking-wide select-none break-words"
+        >
           {targetText.split("").map((char, index) => {
             const isTyped = index < typedText.length;
             const isCurrent = index === typedText.length;
             const isMistake = mistakeIndices.has(index);
 
-            let charClass = "text-slate-400 dark:text-slate-600";
+            let charClass = "text-slate-400/80 dark:text-slate-600";
 
             if (isTyped) {
               if (isMistake) {
                 charClass =
-                  "text-red-500 bg-red-100/80 rounded dark:bg-red-950/60 font-semibold";
+                  "text-rose-500 bg-rose-50 rounded px-0.5 underline decoration-rose-500 decoration-2 dark:bg-rose-950/50 font-bold";
               } else {
                 charClass = "text-emerald-600 dark:text-emerald-400 font-semibold";
               }
             } else if (isCurrent) {
-              charClass = "text-blue-600 dark:text-blue-400 font-bold underline decoration-2";
+              charClass = "text-blue-600 dark:text-blue-400 font-extrabold";
             }
 
             return (
               <span key={index} className={`relative ${charClass}`}>
+                {/* Glowing Smooth Caret Cursor */}
                 {isCurrent && (
-                  <span className="absolute -left-0.5 top-0 bottom-0 w-0.5 bg-blue-600 animate-pulse dark:bg-blue-400" />
+                  <span className="absolute -left-0.5 top-1 bottom-1 w-0.5 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.8)] animate-[pulse_1s_ease-in-out_infinite] dark:bg-blue-400" />
                 )}
                 {char === " " ? (
-                  <span className={isCurrent ? "bg-blue-100 rounded px-1 dark:bg-blue-950" : ""}>
+                  <span className={isCurrent ? "bg-blue-100/70 rounded px-1.5 dark:bg-blue-950/60" : ""}>
                     &nbsp;
                   </span>
                 ) : (
@@ -394,122 +472,161 @@ export function TypingRunner({ chapter }: TypingRunnerProps) {
           })}
         </div>
 
-        {/* Floating guidance helper */}
-        <div className="mt-4 flex flex-wrap items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-700 dark:text-slate-300">Current Key:</span>
-            <span className="inline-flex items-center justify-center rounded bg-slate-900 px-2 py-0.5 font-mono text-xs font-bold text-white dark:bg-white dark:text-slate-900">
-              {currentTargetChar === " " ? "Space" : currentTargetChar}
+        {/* Bottom Micro Guidance Pill */}
+        <div className="mt-6 flex flex-wrap items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+          <div className="flex items-center gap-2.5">
+            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+              Target Key:
             </span>
-            <span className="text-slate-400">•</span>
-            <span>{activeFingerInfo.name}</span>
+            <span className="inline-flex items-center justify-center rounded-md bg-slate-900 px-2.5 py-0.5 font-mono text-xs font-bold text-white shadow-xs dark:bg-white dark:text-slate-900">
+              {currentTargetChar === " " ? "␣ Space" : currentTargetChar}
+            </span>
+            <span className="text-slate-300 dark:text-slate-700">•</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-300">
+              {activeFingerInfo.name}
+            </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-            <span>Tip: Keep your eyes on the screen</span>
+          <div className="flex items-center gap-2 text-[11px] text-slate-400">
+            <span>Press <kbd className="rounded bg-slate-100 px-1 py-0.5 font-mono text-slate-600 dark:bg-slate-800 dark:text-slate-300">Esc</kbd> to restart</span>
           </div>
         </div>
       </div>
 
-      {/* Step Instructions Card */}
-      <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/60 p-4 dark:border-blue-950/60 dark:bg-blue-950/20">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900 dark:text-blue-300 mb-2">
-          Chapter Instructions & How to Complete:
-        </h4>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 dark:text-slate-300">
-          {chapter.instructions.map((inst, idx) => (
-            <li key={idx} className="flex items-start gap-2">
-              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-blue-200 text-[10px] font-bold text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                {idx + 1}
-              </span>
-              <span>{inst}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Guided Visual Toggles (Hidden in Focus Mode) */}
+      {!focusMode && (
+        <>
+          {/* Quick Visibility Switch Bar */}
+          <div className="mt-4 flex items-center justify-between px-1 text-xs">
+            <span className="font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+              <Sliders className="h-3.5 w-3.5 text-blue-600" />
+              Interactive Guides & On-Screen Aids
+            </span>
 
-      {/* Visual Hands Guide Component */}
-      <div className="mt-4">
-        <HandsGuide activeFinger={activeFingerInfo.finger} currentKey={currentTargetChar} />
-      </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowHandsGuide(!showHandsGuide)}
+                className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 font-semibold transition-colors ${
+                  showHandsGuide
+                    ? "bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200"
+                    : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                }`}
+              >
+                <Hand className="h-3.5 w-3.5" />
+                <span>Hands</span>
+              </button>
 
-      {/* Virtual Keyboard Component */}
-      <div className="mt-4">
-        <VirtualKeyboard currentKey={currentTargetChar} />
-      </div>
+              <button
+                onClick={() => setShowVisualKeyboard(!showVisualKeyboard)}
+                className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 font-semibold transition-colors ${
+                  showVisualKeyboard
+                    ? "bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200"
+                    : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                }`}
+              >
+                <Keyboard className="h-3.5 w-3.5" />
+                <span>Keyboard</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Hands Guide Component */}
+          {showHandsGuide && (
+            <div className="mt-2 transition-all duration-200">
+              <HandsGuide activeFinger={activeFingerInfo.finger} currentKey={currentTargetChar} />
+            </div>
+          )}
+
+          {/* Virtual Keyboard Component */}
+          {showVisualKeyboard && (
+            <div className="mt-3 transition-all duration-200">
+              <VirtualKeyboard currentKey={currentTargetChar} />
+            </div>
+          )}
+        </>
+      )}
+
+      {/* New Key Introduction Modal */}
+      <NewKeyModal
+        isOpen={showNewKeyModal}
+        onClose={handleCloseNewKeyModal}
+        newKeys={chapter.newKeys}
+        chapterNumber={chapter.id}
+        chapterTitle={chapter.title}
+      />
 
       {/* Posture Tutorial Modal */}
       <PostureModal isOpen={showTutorialModal} onClose={() => setShowTutorialModal(false)} />
 
       {/* Lesson Complete Modal */}
       {isCompleted && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-2xl dark:border-slate-800 dark:bg-[#0F172A]">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
-              <CheckCircle className="h-8 w-8" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-7 text-center shadow-2xl dark:border-slate-800 dark:bg-[#0B1220]">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
+              <CheckCircle className="h-9 w-9" />
             </div>
 
-            <h3 className="mt-3 text-xl font-bold text-slate-900 dark:text-white">
+            <h3 className="mt-4 text-2xl font-extrabold text-slate-900 dark:text-white">
               Chapter {chapter.id} Completed!
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               {chapter.title}
             </p>
 
             {/* Stars */}
-            <div className="my-4 flex items-center justify-center gap-2">
+            <div className="my-5 flex items-center justify-center gap-2">
               {[1, 2, 3].map((starIdx) => (
                 <Award
                   key={starIdx}
-                  className={`h-8 w-8 transition-transform duration-300 ${
+                  className={`h-9 w-9 transition-transform duration-300 ${
                     starIdx <= starsEarned
-                      ? "text-amber-400 fill-amber-400 scale-110"
-                      : "text-slate-300 dark:text-slate-700"
+                      ? "text-amber-400 fill-amber-400 scale-110 drop-shadow-md"
+                      : "text-slate-200 dark:text-slate-800"
                   }`}
                 />
               ))}
             </div>
 
             {/* Stats Summary */}
-            <div className="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 p-3 text-center dark:bg-slate-900/70">
+            <div className="grid grid-cols-3 gap-2.5 rounded-2xl bg-slate-50 p-4 text-center dark:bg-slate-900/80">
               <div>
-                <span className="text-[10px] font-bold uppercase text-slate-400">Net Speed</span>
-                <p className="text-base font-extrabold text-blue-600 dark:text-blue-400">
-                  {netWpm} WPM
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Net WPM</span>
+                <p className="text-lg font-extrabold text-blue-600 dark:text-blue-400 font-mono mt-0.5">
+                  {netWpm}
                 </p>
               </div>
               <div>
-                <span className="text-[10px] font-bold uppercase text-slate-400">Accuracy</span>
-                <p className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Accuracy</span>
+                <p className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">
                   {accuracy}%
                 </p>
               </div>
               <div>
-                <span className="text-[10px] font-bold uppercase text-slate-400">Mistakes</span>
-                <p className="text-base font-extrabold text-rose-600 dark:text-rose-400">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Mistakes</span>
+                <p className="text-lg font-extrabold text-rose-600 dark:text-rose-400 font-mono mt-0.5">
                   {totalErrors}
                 </p>
               </div>
             </div>
 
             {/* Target Status */}
-            <div className="mt-3 text-xs text-slate-600 dark:text-slate-400">
+            <div className="mt-4 text-xs text-slate-600 dark:text-slate-400">
               {accuracy >= chapter.minAccuracy && netWpm >= chapter.targetWpm ? (
                 <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                  ✓ Target criteria passed! Excellent muscle memory discipline.
+                  ✓ Target Passed! Clean muscle memory maintained.
                 </span>
               ) : (
-                <span className="text-amber-600 dark:text-amber-400">
-                  Tip: Target was {chapter.targetWpm} WPM & {chapter.minAccuracy}% accuracy. Practice again to earn all 3 stars!
+                <span className="text-amber-600 dark:text-amber-400 font-medium">
+                  Target: {chapter.targetWpm} WPM &amp; {chapter.minAccuracy}% accuracy. Retry anytime for 3 stars!
                 </span>
               )}
             </div>
 
             {/* CTAs */}
-            <div className="mt-5 flex items-center gap-3">
+            <div className="mt-6 flex items-center gap-3">
               <button
                 onClick={handleReset}
-                className="flex-1 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+                className="flex-1 rounded-xl border border-slate-200 bg-white py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 transition-colors"
               >
                 Retry Chapter
               </button>
@@ -517,14 +634,14 @@ export function TypingRunner({ chapter }: TypingRunnerProps) {
               {chapter.id < 365 ? (
                 <Link
                   href={`/typing/${chapter.id + 1}`}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-xs font-bold text-white shadow-md hover:bg-blue-700 active:scale-95 transition-all"
                 >
                   Next Chapter <ArrowRight className="h-4 w-4" />
                 </Link>
               ) : (
                 <Link
                   href="/typing"
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-xs font-bold text-white shadow-md hover:bg-emerald-700 active:scale-95 transition-all"
                 >
                   All Chapters Complete!
                 </Link>
