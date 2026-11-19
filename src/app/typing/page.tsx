@@ -296,11 +296,6 @@ export default function TypingHubPage() {
                       ))}
                     </div>
                   )}
-                          {k === " " ? "Space" : k}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 {/* Footer Meta */}
