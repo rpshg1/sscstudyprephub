@@ -243,6 +243,7 @@ export function AdminDashboardClient({
   const [syncingDrive, setSyncingDrive] = useState(
     Boolean(driveSync.activeJob?.running)
   );
+  const [submittingIndexNow, setSubmittingIndexNow] = useState(false);
   const [activeJob, setActiveJob] = useState(driveSync.activeJob ?? null);
   const [autoPublishDrive, setAutoPublishDrive] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "ok" | "err"; msg: string } | null>(
@@ -589,6 +590,31 @@ export function AdminDashboardClient({
       type: "ok",
       msg: `Google Drive push notification channel registered (${data.channelId}).`,
     });
+  }
+
+  async function handlePingIndexNow() {
+    setSubmittingIndexNow(true);
+    setFeedback(null);
+    try {
+      const res = await fetch("/api/admin/indexnow", { method: "POST" });
+      const data = (await res.json()) as {
+        submitted?: number;
+        indexNowResponse?: { status: number; ok: boolean; statusText?: string };
+        error?: string;
+      };
+      if (!res.ok) {
+        setFeedback({ type: "err", msg: data.error || "IndexNow ping failed." });
+        return;
+      }
+      setFeedback({
+        type: "ok",
+        msg: `IndexNow Success! Pushed ${data.submitted ?? 0} URLs to Bing and Yandex (HTTP ${data.indexNowResponse?.status ?? 200}).`,
+      });
+    } catch {
+      setFeedback({ type: "err", msg: "Network error submitting to IndexNow." });
+    } finally {
+      setSubmittingIndexNow(false);
+    }
   }
 
   async function handleAutoShrinkMe() {
@@ -1328,6 +1354,22 @@ export function AdminDashboardClient({
                   onClick={handleBackfillThumbnails}
                 >
                   Generate Page-1 Thumbnails
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePingIndexNow}
+                  disabled={submittingIndexNow}
+                  className="border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300"
+                >
+                  {submittingIndexNow ? (
+                    <>
+                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      Pinging Bing...
+                    </>
+                  ) : (
+                    "Ping IndexNow (Bing/Yandex)"
+                  )}
                 </Button>
               </div>
             </div>
