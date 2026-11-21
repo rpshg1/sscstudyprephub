@@ -25,6 +25,10 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/admin",
           "/dashboard",
+          "/login",
+          "/signup",
+          "/forgot-password",
+          "/reset-password",
           "/api/admin/",
           "/api/auth/",
           "/api/download/",
@@ -37,7 +41,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "Googlebot",
         allow: ["/", "/api/thumbnails/", "/api/resources/*/sample"],
-        disallow: ["/admin", "/dashboard", "/api/admin/", "/api/auth/"],
+        disallow: [
+          "/admin",
+          "/dashboard",
+          "/login",
+          "/signup",
+          "/forgot-password",
+          "/reset-password",
+          "/api/admin/",
+          "/api/auth/",
+        ],
       },
       {
         userAgent: "Googlebot-Image",
