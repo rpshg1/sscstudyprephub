@@ -15,6 +15,7 @@ import {
 import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/primitives";
+import { TelegramIcon, InstagramIcon, YouTubeIcon } from "@/components/social-icons";
 import type { SafeUser } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -109,6 +110,39 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
 
         {/* Desktop Right Actions */}
         <div className="hidden lg:flex items-center gap-2.5">
+          <div className="flex items-center gap-1 pr-1.5 border-r border-[#E2E8F0] dark:border-slate-800">
+            <a
+              href="https://t.me/sscstudyprephub"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Join Telegram (@sscstudyprephub)"
+              aria-label="Telegram (@sscstudyprephub)"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-sky-500 hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors"
+            >
+              <TelegramIcon className="h-4 w-4" />
+            </a>
+            <a
+              href="https://instagram.com/sscstudyprephub"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Follow Instagram (@sscstudyprephub)"
+              aria-label="Instagram (@sscstudyprephub)"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+            >
+              <InstagramIcon className="h-4 w-4" />
+            </a>
+            <a
+              href="https://youtube.com/@sscstudyprephub"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Subscribe YouTube (@sscstudyprephub)"
+              aria-label="YouTube (@sscstudyprephub)"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+            >
+              <YouTubeIcon className="h-4 w-4" />
+            </a>
+          </div>
+
           <ThemeToggle />
           {user ? (
             <>
@@ -252,6 +286,41 @@ export function Navbar({ user: initialUser = null }: { user?: SafeUser | null })
                 </Link>
               </div>
             )}
+
+            <div className="mt-4 border-t border-[#E2E8F0] pt-3 dark:border-slate-800">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                Join Community (@sscstudyprephub)
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                <a
+                  href="https://t.me/sscstudyprephub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center justify-center gap-1 rounded-lg border border-sky-200 bg-sky-50/70 p-2 text-xs font-semibold text-sky-700 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-300"
+                >
+                  <TelegramIcon className="h-4 w-4" />
+                  <span>Telegram</span>
+                </a>
+                <a
+                  href="https://instagram.com/sscstudyprephub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center justify-center gap-1 rounded-lg border border-rose-200 bg-rose-50/70 p-2 text-xs font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300"
+                >
+                  <InstagramIcon className="h-4 w-4" />
+                  <span>Instagram</span>
+                </a>
+                <a
+                  href="https://youtube.com/@sscstudyprephub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center justify-center gap-1 rounded-lg border border-red-200 bg-red-50/70 p-2 text-xs font-semibold text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+                >
+                  <YouTubeIcon className="h-4 w-4" />
+                  <span>YouTube</span>
+                </a>
+              </div>
+            </div>
           </nav>
         </div>
       )}

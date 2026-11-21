@@ -9,9 +9,43 @@ export const BRAND = {
     "Discover structured study notes, previous year question papers (PYQs), preparation roadmaps, current affairs PDFs, and exam-focused books for SSC CGL, CHSL, MTS, CPO, and GD aspirants.",
   supportEmail: "sscstudyprephub@gmail.com",
   copyrightEmail: "sscstudyprephub@gmail.com",
+  socialHandle: "@sscstudyprephub",
+  telegramUrl: "https://t.me/sscstudyprephub",
+  instagramUrl: "https://instagram.com/sscstudyprephub",
+  youtubeUrl: "https://youtube.com/@sscstudyprephub",
   disclaimerShort:
     "SSPH is an independent educational platform and is not affiliated with the Staff Selection Commission (SSC) or the Government of India.",
 } as const;
+
+export const SOCIAL_LINKS = [
+  {
+    id: "telegram",
+    name: "Telegram",
+    handle: "@sscstudyprephub",
+    url: "https://t.me/sscstudyprephub",
+    description: "Daily SSC study PDFs, notes, exam notifications, and instant alerts.",
+    cta: "Join Telegram Channel",
+    color: "#229ED9",
+  },
+  {
+    id: "instagram",
+    name: "Instagram",
+    handle: "@sscstudyprephub",
+    url: "https://instagram.com/sscstudyprephub",
+    description: "Daily GK short tricks, vocabulary flashcards, and motivational reels.",
+    cta: "Follow on Instagram",
+    color: "#E1306C",
+  },
+  {
+    id: "youtube",
+    name: "YouTube",
+    handle: "@sscstudyprephub",
+    url: "https://youtube.com/@sscstudyprephub",
+    description: "Touch typing tutorials, previous year paper walk-throughs & exam strategies.",
+    cta: "Subscribe on YouTube",
+    color: "#FF0000",
+  },
+] as const;
 
 export const PRICING_PLANS = {
   FREE: {

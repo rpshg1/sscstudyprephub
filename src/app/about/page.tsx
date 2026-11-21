@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BRAND } from "@/lib/constants";
 import { Badge, Card } from "@/components/ui/primitives";
+import { SocialBadges } from "@/components/social-icons";
 
 export const metadata: Metadata = {
   title: "About SSPH",
@@ -47,9 +48,20 @@ export default function AboutPage() {
         <div className="rounded-lg border border-blue-200 bg-blue-50/70 p-4 text-xs text-[#101B33]">
           <strong>Independence Notice:</strong> {BRAND.disclaimerShort}
         </div>
+
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+          <p className="font-bold text-[#101B33] dark:text-white mb-2">
+            Join Our Aspirant Community ({BRAND.socialHandle}):
+          </p>
+          <SocialBadges size="md" />
+        </div>
+
         <div className="pt-2 flex flex-wrap gap-4">
-          <Link href="/library" className="font-semibold text-[#2563EB] hover:underline">
-            Explore the Resource Library →
+          <Link href="/books" className="font-semibold text-[#2563EB] hover:underline">
+            Explore Study Books →
+          </Link>
+          <Link href="/typing" className="font-semibold text-[#2563EB] hover:underline">
+            Touch Typing Masterclass →
           </Link>
           <Link href="/contact" className="font-semibold text-[#2563EB] hover:underline">
             Contact Support →

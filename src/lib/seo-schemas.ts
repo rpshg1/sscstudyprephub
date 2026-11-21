@@ -55,6 +55,7 @@ export function generateCourseSchema() {
       name: BRAND.name,
       url: baseUrl,
       logo: `${baseUrl}/logo.png`,
+      sameAs: [BRAND.telegramUrl, BRAND.instagramUrl, BRAND.youtubeUrl],
     },
     educationalLevel: "Beginner to Advanced (0 to 50+ WPM)",
     isAccessibleForFree: true,
@@ -138,6 +139,7 @@ export function generateDestExamSchema() {
       "@type": "Organization",
       name: BRAND.name,
       url: baseUrl,
+      sameAs: [BRAND.telegramUrl, BRAND.instagramUrl, BRAND.youtubeUrl],
     },
   };
 }

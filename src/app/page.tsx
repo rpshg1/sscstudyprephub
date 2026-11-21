@@ -13,10 +13,11 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { listPublicResources } from "@/lib/resources";
-import { BRAND, EXAM_OPTIONS, HOME_FAQS } from "@/lib/constants";
+import { BRAND, EXAM_OPTIONS, HOME_FAQS, SOCIAL_LINKS } from "@/lib/constants";
 import { Badge, Card } from "@/components/ui/primitives";
 import { SearchBar } from "@/components/search-bar";
 import { ResourceCard } from "@/components/resource-card";
+import { TelegramIcon, InstagramIcon, YouTubeIcon } from "@/components/social-icons";
 
 export const revalidate = 60;
 
@@ -78,6 +79,7 @@ export default async function HomePage() {
       description: BRAND.heroSubtitle,
       url: baseUrl,
       email: BRAND.supportEmail,
+      sameAs: [BRAND.telegramUrl, BRAND.instagramUrl, BRAND.youtubeUrl],
       logo: {
         "@type": "ImageObject",
         url: `${baseUrl}/logo.png`,
@@ -96,6 +98,7 @@ export default async function HomePage() {
         "@type": "Organization",
         name: BRAND.name,
         url: `${baseUrl}/`,
+        sameAs: [BRAND.telegramUrl, BRAND.instagramUrl, BRAND.youtubeUrl],
         logo: {
           "@type": "ImageObject",
           url: `${baseUrl}/logo.png`,
@@ -483,6 +486,124 @@ export default async function HomePage() {
           {latestResources.map((resource) => (
             <ResourceCard key={resource.id} resource={resource} />
           ))}
+        </div>
+      </section>
+
+      {/* ASPIRANT COMMUNITY & SOCIALS */}
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50/60 via-indigo-50/30 to-purple-50/40 p-6 sm:p-10 dark:border-slate-800 dark:from-[#0F172A] dark:via-[#131F37] dark:to-[#0F172A]">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div>
+              <Badge tone="blue">Aspirant Community</Badge>
+              <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#101B33] dark:text-white">
+                Join Us On Telegram, Instagram &amp; YouTube
+              </h2>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                Connect with {BRAND.socialHandle} across all platforms for daily study PDFs, instant alerts, short tricks, and video tutorials.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-100/60 dark:bg-blue-950/60 px-3 py-1.5 rounded-full self-start sm:self-auto">
+              Official: {BRAND.socialHandle}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+            {/* Telegram Card */}
+            <div className="flex flex-col justify-between rounded-2xl border border-sky-200 bg-white p-6 shadow-xs transition-all hover:shadow-md hover:border-sky-400 dark:border-sky-900/60 dark:bg-[#101B33]">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-100 text-[#229ED9] dark:bg-sky-950 dark:text-sky-300">
+                    <TelegramIcon className="h-6 w-6" />
+                  </div>
+                  <span className="rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-700 dark:bg-sky-950/80 dark:text-sky-300">
+                    Channel
+                  </span>
+                </div>
+                <h3 className="mt-4 text-lg font-bold text-[#101B33] dark:text-white">
+                  Telegram Channel
+                </h3>
+                <p className="text-xs font-semibold text-sky-600 dark:text-sky-400 mt-0.5">
+                  @sscstudyprephub
+                </p>
+                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                  Instant alerts for new books, direct PDF drops, question compilations, and shift-wise answer keys without waiting.
+                </p>
+              </div>
+              <a
+                href={BRAND.telegramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#229ED9] px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-[#1E8BBF] transition-colors"
+              >
+                <TelegramIcon className="h-4 w-4" />
+                Join Telegram Channel
+              </a>
+            </div>
+
+            {/* Instagram Card */}
+            <div className="flex flex-col justify-between rounded-2xl border border-rose-200 bg-white p-6 shadow-xs transition-all hover:shadow-md hover:border-rose-400 dark:border-rose-900/60 dark:bg-[#101B33]">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-[#E1306C] dark:bg-rose-950 dark:text-rose-300">
+                    <InstagramIcon className="h-6 w-6" />
+                  </div>
+                  <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-700 dark:bg-rose-950/80 dark:text-rose-300">
+                    Daily Reels
+                  </span>
+                </div>
+                <h3 className="mt-4 text-lg font-bold text-[#101B33] dark:text-white">
+                  Instagram Page
+                </h3>
+                <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 mt-0.5">
+                  @sscstudyprephub
+                </p>
+                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                  Daily static GK mnemonics, English vocabulary flashcards, exam notifications, and motivational tips in quick 30s reels.
+                </p>
+              </div>
+              <a
+                href={BRAND.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#E1306C] px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-[#C8235C] transition-colors"
+              >
+                <InstagramIcon className="h-4 w-4" />
+                Follow @sscstudyprephub
+              </a>
+            </div>
+
+            {/* YouTube Card */}
+            <div className="flex flex-col justify-between rounded-2xl border border-red-200 bg-white p-6 shadow-xs transition-all hover:shadow-md hover:border-red-400 dark:border-red-900/60 dark:bg-[#101B33]">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 text-[#FF0000] dark:bg-red-950 dark:text-red-300">
+                    <YouTubeIcon className="h-6 w-6" />
+                  </div>
+                  <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950/80 dark:text-red-300">
+                    Videos
+                  </span>
+                </div>
+                <h3 className="mt-4 text-lg font-bold text-[#101B33] dark:text-white">
+                  YouTube Channel
+                </h3>
+                <p className="text-xs font-semibold text-red-600 dark:text-red-400 mt-0.5">
+                  @sscstudyprephub
+                </p>
+                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                  Touch typing tutorials, 15-minute SSC DEST exam demonstrations, subject roadmaps, and paper analysis video guides.
+                </p>
+              </div>
+              <a
+                href={BRAND.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF0000] px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-[#CC0000] transition-colors"
+              >
+                <YouTubeIcon className="h-4 w-4" />
+                Subscribe on YouTube
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 

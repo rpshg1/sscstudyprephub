@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/constants";
 import { BrandLogo } from "@/components/brand-logo";
+import { FooterSocialLinks } from "@/components/social-icons";
 
 export function Footer() {
   return (
@@ -25,6 +26,14 @@ export function Footer() {
                 {BRAND.supportEmail}
               </a>
             </p>
+            <div className="pt-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                Join Community ({BRAND.socialHandle})
+              </p>
+              <div className="mt-2.5">
+                <FooterSocialLinks />
+              </div>
+            </div>
           </div>
 
           <div>
