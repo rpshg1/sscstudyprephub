@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Create Free Account",
   description: "Register on SSCSTUDYPREPHUB (SSPH) to organize your SSC study library.",
+  robots: { index: false, follow: false },
 };
 
 export default async function SignupPage() {

@@ -4,6 +4,7 @@ import { ForgotPasswordForm } from "@/components/auth-forms";
 export const metadata: Metadata = {
   title: "Forgot Password",
   description: "Request a password reset link for your SSPH account.",
+  robots: { index: false, follow: false },
 };
 
 export default function ForgotPasswordPage() {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { BRAND } from "@/lib/constants";
 
 export function BrandLogo({
@@ -15,12 +16,12 @@ export function BrandLogo({
       aria-label={`${BRAND.name} (${BRAND.shortName}) Home`}
     >
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full shadow-xs ring-1 ring-amber-400/50 group-hover:ring-[#2563EB] transition-all overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/logo.png"
           alt={`${BRAND.name} (${BRAND.shortName}) logo`}
           width={40}
           height={40}
+          priority
           className="h-full w-full object-cover"
         />
       </span>

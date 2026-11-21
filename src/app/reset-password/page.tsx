@@ -4,6 +4,7 @@ import { ResetPasswordForm } from "@/components/auth-forms";
 export const metadata: Metadata = {
   title: "Reset Password",
   description: "Set a new password for your SSCSTUDYPREPHUB account.",
+  robots: { index: false, follow: false },
 };
 
 export default async function ResetPasswordPage({

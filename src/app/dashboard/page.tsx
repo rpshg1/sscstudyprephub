@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Student Dashboard",
   description: "Manage your SSPH membership, remaining book credits, downloads, and saved study resources.",
+  robots: { index: false, follow: false },
 };
 
 export default async function DashboardPage() {

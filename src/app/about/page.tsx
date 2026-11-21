@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { BRAND } from "@/lib/constants";
 import { Badge, Card } from "@/components/ui/primitives";
 import { SocialBadges } from "@/components/social-icons";
@@ -15,12 +16,12 @@ export default function AboutPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 space-y-6">
       <div className="flex items-start gap-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/logo.png"
           alt={`${BRAND.name} (${BRAND.shortName}) logo`}
           width={56}
           height={56}
+          priority
           className="h-14 w-14 shrink-0 rounded-full shadow-xs ring-1 ring-amber-400/50"
         />
         <div>

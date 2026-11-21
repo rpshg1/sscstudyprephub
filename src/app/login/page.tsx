@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Login",
   description: "Sign in to your SSCSTUDYPREPHUB (SSPH) student or admin account.",
+  robots: { index: false, follow: false },
 };
 
 export default async function LoginPage({
