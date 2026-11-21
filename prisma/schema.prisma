@@ -24,6 +24,8 @@ enum ExamCategory {
   SSC_MTS
   SSC_CPO
   SSC_GD
+  UPSSSC_PET
+  RRB_NTPC
   ALL_SSC
 }
 

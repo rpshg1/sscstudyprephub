@@ -107,7 +107,9 @@ export const EXAM_OPTIONS = [
   { value: "SSC_MTS", label: "SSC MTS", fullName: "Multi-Tasking Staff" },
   { value: "SSC_CPO", label: "SSC CPO", fullName: "Central Police Organisation (SI)" },
   { value: "SSC_GD", label: "SSC GD", fullName: "General Duty Constable" },
-  { value: "ALL_SSC", label: "All SSC Exams", fullName: "Common across SSC Tiers" },
+  { value: "UPSSSC_PET", label: "UPSSSC PET", fullName: "UP Preliminary Eligibility Test" },
+  { value: "RRB_NTPC", label: "RRB NTPC", fullName: "Railway Non-Technical Categories" },
+  { value: "ALL_SSC", label: "All SSC & Govt Exams", fullName: "Common across Government Exams" },
 ] as const;
 
 export const RESOURCE_TYPE_OPTIONS = [

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { DestExamRunner } from "@/components/typing/dest-exam-runner";
 import {
   generateBreadcrumbSchema,
@@ -88,6 +89,14 @@ export default function TypingExamPage() {
       />
       <div className="min-h-screen bg-[#F8FAFC] pb-16 dark:bg-[#070D18]">
         <DestExamRunner />
+        <div className="mx-auto max-w-4xl px-4 pt-6 text-center">
+          <Link
+            href="/typing/rules"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400"
+          >
+            Read Official SSC DEST Typing Rules, Full/Half Mistakes &amp; Cutoff Guide →
+          </Link>
+        </div>
       </div>
     </>
   );

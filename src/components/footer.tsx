@@ -72,6 +72,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/typing/rules" className="hover:text-white text-xs text-slate-300">
+                  DEST Rules &amp; Error Formula
+                </Link>
+              </li>
+              <li>
                 <Link href="/books?exam=SSC_CGL" className="hover:text-white">
                   SSC CGL &amp; CHSL Material
                 </Link>

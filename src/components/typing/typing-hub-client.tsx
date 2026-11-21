@@ -104,6 +104,14 @@ export function TypingHubClient() {
                   <ShieldCheck className="h-4 w-4 text-red-600" />
                   SSC DEST Exam Mode
                 </Link>
+
+                <Link
+                  href="/typing/rules"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 transition-colors"
+                >
+                  <BookOpen className="h-4 w-4 text-emerald-600" />
+                  DEST Rules &amp; Error Formula
+                </Link>
               </div>
             </div>
 
