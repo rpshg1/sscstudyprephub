@@ -17,6 +17,7 @@
     "admin:create": "tsx scripts/create-admin.ts",
     "thumbnails:backfill": "tsx scripts/backfill-thumbnails.ts",
     "drive:sync": "tsx scripts/drive-sync-worker.ts",
+    "indexnow": "node scripts/submit-indexnow.mjs",
     "test": "tsx --test tests/core.test.ts"
   },
   "prisma": {
