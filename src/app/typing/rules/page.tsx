@@ -24,7 +24,7 @@ const baseUrl = getSiteBaseUrl();
 export const metadata: Metadata = {
   title: "SSC CGL & CHSL DEST Typing Test Rules: Error Calculation & Cutoff",
   description:
-    "Official SSC DEST typing test rules: 2000 keystrokes in 15 mins for CGL, 1750 in 10 mins for CHSL. Full mistakes vs half mistakes formula, backspace rules, and cutoffs.",
+    "Official SSC CGL & CHSL DEST typing rules: 2000 keystrokes in 15 mins, error calculation formula, full/half mistakes breakdown, backspace rules & cutoffs.",
   keywords: [
     "ssc dest typing test rules",
     "ssc typing test error calculation formula",

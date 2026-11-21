@@ -14,7 +14,7 @@ const baseUrl = getSiteBaseUrl();
 export const metadata: Metadata = {
   title: "SSC Exam Syllabus 2025-2026 — CGL, CHSL, MTS, CPO & GD Pattern + PDFs | SSPH",
   description:
-    "Complete Staff Selection Commission (SSC) Tier-I & Tier-II syllabus breakdown, topic-wise weightage, marking scheme, and free downloadable syllabus PDFs for SSC CGL, CHSL, MTS, CPO, and GD.",
+    "Official SSC CGL, CHSL, MTS & CPO Tier-1 and Tier-2 syllabus breakdown, topic weightage, negative marking rules, and free PDFs on SSPH.",
   keywords: [
     "SSC CGL syllabus 2025 2026 Tier 1 Tier 2 PDF",
     "SSC CHSL syllabus topic wise PDF download",

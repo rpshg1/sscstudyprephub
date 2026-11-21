@@ -12,7 +12,7 @@ const baseUrl = getSiteBaseUrl();
 export const metadata: Metadata = {
   title: "SSC Books — Free Preparation Books & Reference PDFs | SSPH",
   description:
-    "Download and read curated SSC CGL, CHSL, MTS, CPO, and GD preparation books, reference guides, and subject compendiums across Mathematics, English, Reasoning, and General Awareness.",
+    "Download free SSC CGL, CHSL, MTS & CPO preparation books, notes, and formula handbooks for Maths, English, Reasoning, and Static GK on SSPH.",
   keywords: [
     "SSC CGL books PDF free download",
     "SSC CHSL preparation books PDF",

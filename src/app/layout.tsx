@@ -40,7 +40,8 @@ export const metadata: Metadata = {
     default: `${BRAND.name} (${BRAND.shortName}) — ${BRAND.tagline}`,
     template: `%s | ${BRAND.shortName} — ${BRAND.name}`,
   },
-  description: `${BRAND.heroSubtitle} Access 365+ Touch Typing lessons, official SSC CGL/CHSL DEST typing simulators, solved PYQs, syllabus breakdowns, and free study books.`,
+  description:
+    "Free SSC CGL, CHSL, MTS & CPO study notes, solved TCS PYQ papers, and authentic 2,000 keystroke DEST typing simulator. 100% free PDFs on SSPH.",
   keywords: [
     "SSC CGL notes PDF free download",
     "SSC CHSL study material PDF",
@@ -91,7 +92,8 @@ export const metadata: Metadata = {
     locale: "en_IN",
     siteName: BRAND.name,
     title: `${BRAND.name} (${BRAND.shortName}) — ${BRAND.heroHeading}`,
-    description: `${BRAND.heroSubtitle} Complete SSC CGL, CHSL, MTS, CPO preparation library with 365+ Touch Typing course & DEST simulator.`,
+    description:
+      "Free SSC CGL, CHSL, MTS & CPO study notes, solved TCS PYQ papers, and authentic 2,000 keystroke DEST typing simulator. 100% free PDFs on SSPH.",
     url: siteUrl,
     images: [
       {
@@ -105,7 +107,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `${BRAND.name} (${BRAND.shortName}) — ${BRAND.heroHeading}`,
-    description: BRAND.heroSubtitle,
+    description:
+      "Free SSC CGL, CHSL, MTS & CPO study notes, solved TCS PYQ papers, and authentic 2,000 keystroke DEST typing simulator. 100% free PDFs on SSPH.",
     images: ["/og-image.png"],
   },
   alternates: {

@@ -13,7 +13,7 @@ const baseUrl = getSiteBaseUrl();
 export const metadata: Metadata = {
   title: "Official SSC CGL & CHSL DEST Exam Simulator (2000 Keystrokes) | SSPH",
   description:
-    "Simulate official SSC CGL Tier-II (15 min / 2000 key depressions) and CHSL Tier-II (10 min / 1750 key depressions) DEST typing tests with authentic commission error formula and qualifying evaluation.",
+    "Practice official 15-min SSC CGL (2000 keys) & CHSL (1750 keys) DEST typing simulator with commission error formula, backspace control & pass/fail cutoff.",
   keywords: [
     "SSC CGL DEST typing test online free",
     "SSC CHSL typing test simulator 35 WPM",

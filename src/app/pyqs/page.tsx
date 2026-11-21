@@ -12,7 +12,7 @@ const baseUrl = getSiteBaseUrl();
 export const metadata: Metadata = {
   title: "SSC Previous Year Question Papers (PYQs) — Solved PDFs | SSPH",
   description:
-    "Download shift-wise and chapter-wise SSC CGL, CHSL, MTS, CPO, and GD previous year question papers (PYQs) with verified answer keys and detailed solutions.",
+    "Download official TCS shift-wise SSC CGL, CHSL, MTS, CPO & GD solved papers with verified commission answer keys and math solutions on SSPH.",
   keywords: [
     "SSC CGL previous year question papers PDF with solution",
     "SSC CHSL PYQ solved papers download",

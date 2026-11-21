@@ -12,7 +12,7 @@ const baseUrl = getSiteBaseUrl();
 export const metadata: Metadata = {
   title: "Free Touch Typing Course (365+ Chapters) & SSC DEST Simulator | SSPH",
   description:
-    "Master touch typing from scratch with 365+ interactive lessons, visual hand-placement guide, virtual QWERTY keyboard, and authentic SSC CGL / CHSL DEST typing test simulators.",
+    "Learn touch typing from scratch with 365 daily lessons, live finger placement guides, virtual keyboard, and official SSC DEST exam simulators on SSPH.",
   keywords: [
     "touch typing course free 365 chapters",
     "SSC CGL typing test online practice",

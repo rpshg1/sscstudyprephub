@@ -12,7 +12,7 @@ const baseUrl = getSiteBaseUrl();
 export const metadata: Metadata = {
   title: "Free SSC Study Roadmaps — Direct Download (No Ads) | SSPH",
   description:
-    "Download structured week-by-week SSC CGL, CHSL, MTS, CPO, and GD study roadmaps, timetables, and 90-day/6-month revision plans completely free with direct PDF download.",
+    "Download free week-by-week SSC CGL, CHSL, MTS & CPO study roadmaps, 90-day revision timetables, and daily strategy plans on SSPH.",
   keywords: [
     "SSC CGL preparation roadmap PDF",
     "SSC CGL 6 months study plan PDF download",
